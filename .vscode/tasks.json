@@ -1,0 +1,141 @@
+{
+    // 自定义STM32F4烧录任务，使用ST-Link
+    //想要改烧录器目标，更改openocd路径下/scripts/interface/里的配置文件路径即可
+    //ST-Link Download任务只支持win
+        "version": "2.0.0",
+        "tasks": [
+            {
+                "label": "build",
+                "type": "shell",
+                "command": "make -j8",
+                "problemMatcher": []
+            },
+            {
+                "label": "clean",
+                "type": "shell",
+                "command": "make clean"
+            },
+            {
+                "label": "linux_download",
+                "type": "shell",
+                "command": "openocd",
+                "args": [
+                    "-f",
+                    "/usr/local/share/openocd/scripts/interface/stlink.cfg",
+                    "-f",
+                    "/usr/local/share/openocd/scripts/target/stm32f4x.cfg",
+                    "-c",
+                    "program build/${workspaceFolderBasename}.elf verify reset exit"
+                ],
+                "problemMatcher": [
+                    "$gcc"
+                ],
+                "group": "build"
+            },
+            {
+                "label": "win_download",
+                "type": "shell",
+                "command": "openocd",
+                "args": [
+                    "-f",
+                    "D:/ProgramFiles/openocd/xpack-openocd-0.11.0-3/scripts/interface/stlink.cfg",
+                    "-f",
+                    "D:/ProgramFiles/openocd/xpack-openocd-0.11.0-3/scripts/target/stm32f4x.cfg",
+                    "-c",
+                    "targets",
+                    "-c",
+                    "program build/${workspaceFolderBasename}.elf preverify verify reset exit"
+                ],
+                "problemMatcher": [
+                    "$armcc"
+                ],
+                "group": "build"
+            },
+            {
+                "label": "start_openocd",
+                "type": "shell",
+                "command": "openocd",
+                "args": [
+                    "-f",
+                    "D:/ProgramFiles/openocd/xpack-openocd-0.11.0-3/scripts/interface/stlink-v2.cfg",
+                    "-f",
+                    "D:/ProgramFiles/openocd/xpack-openocd-0.11.0-3/scripts/target/stm32f4x.cfg"
+                ],
+                "problemMatcher": []
+            },
+            {
+                "label": "ST-link Download",
+                "type": "shell",
+                "command": "ST-LINK_CLI.exe",
+                "args": [
+                    "-c",
+                    "SWD",
+                    "UR",
+                    "-P",
+                    "build/${workspaceFolderBasename}.hex",
+                    "-V",
+                    "-Rst"
+                ],
+                "problemMatcher": []
+            },
+            {
+                "label": "JLink Download",
+                "type": "shell",
+                "command": "JLink.exe",
+                "args": [
+                    "JLink/STM32F407IGxx.txt"
+                ],
+                "problemMatcher": []
+            },
+            {
+                "label": "flash mass_erase",
+                "type": "shell",
+                "command": "openocd",
+                "args": [
+                    "-f",
+                    "D:/ProgramFiles/openocd/xpack-openocd-0.11.0-3/scripts/interface/stlink-v2.cfg",
+                    "-f",
+                    "D:/ProgramFiles/openocd/xpack-openocd-0.11.0-3/scripts/target/stm32f4x.cfg",
+                    "-c",
+                    "init;reset init;flash write_image erase build/${workspaceFolderBasename}.bin 0x08000000;",
+                    "-c",
+                    "reset run"
+                ]
+            },
+            {
+                "label": "ST-link FullChip Erase",
+                "type": "shell",
+                "command": "ST-LINK_CLI.exe",
+                "args": [
+                    "-c",
+                    "SWD",
+                    "UR",
+                    "-ME",
+                    "-P",
+                    "build/${workspaceFolderBasename}.hex",
+                    "-V",
+                    "-Rst"
+                ],
+                "problemMatcher": []
+            },
+            {
+                "label": "JLink FullChip Erase",
+                "type": "shell",
+                "command": "JLink.exe",
+                "args": [
+                    "JLink/STM32F407IGxx_erase.txt"
+                ],
+                "problemMatcher": []
+            },
+            {
+                "label": "ST-link List",
+                "type": "shell",
+                "command": "ST-LINK_CLI.exe",
+                "args": [
+                    "-List"
+                ],
+                "problemMatcher": []
+            }
+        ]
+    
+    }

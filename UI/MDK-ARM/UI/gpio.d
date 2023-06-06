@@ -1,0 +1,36 @@
+.\ui\gpio.o: ../Src/gpio.c
+.\ui\gpio.o: ../Inc/gpio.h
+.\ui\gpio.o: ../Inc/main.h
+.\ui\gpio.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal.h
+.\ui\gpio.o: ../Inc/stm32f4xx_hal_conf.h
+.\ui\gpio.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_rcc.h
+.\ui\gpio.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_def.h
+.\ui\gpio.o: ../Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f4xx.h
+.\ui\gpio.o: ../Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f407xx.h
+.\ui\gpio.o: ../Drivers/CMSIS/Include/core_cm4.h
+.\ui\gpio.o: D:\Program Files\Keil_v5\ARM\ARM_Compiler_5.06u7\Bin\..\include\stdint.h
+.\ui\gpio.o: ../Drivers/CMSIS/Include/cmsis_version.h
+.\ui\gpio.o: ../Drivers/CMSIS/Include/cmsis_compiler.h
+.\ui\gpio.o: ../Drivers/CMSIS/Include/cmsis_armcc.h
+.\ui\gpio.o: ../Drivers/CMSIS/Include/mpu_armv7.h
+.\ui\gpio.o: ../Drivers/CMSIS/Device/ST/STM32F4xx/Include/system_stm32f4xx.h
+.\ui\gpio.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal.h
+.\ui\gpio.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy/stm32_hal_legacy.h
+.\ui\gpio.o: D:\Program Files\Keil_v5\ARM\ARM_Compiler_5.06u7\Bin\..\include\stddef.h
+.\ui\gpio.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_rcc_ex.h
+.\ui\gpio.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_gpio.h
+.\ui\gpio.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_gpio_ex.h
+.\ui\gpio.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_exti.h
+.\ui\gpio.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_dma.h
+.\ui\gpio.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_dma_ex.h
+.\ui\gpio.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_cortex.h
+.\ui\gpio.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_can.h
+.\ui\gpio.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_flash.h
+.\ui\gpio.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_flash_ex.h
+.\ui\gpio.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_flash_ramfunc.h
+.\ui\gpio.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_pwr.h
+.\ui\gpio.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_pwr_ex.h
+.\ui\gpio.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_spi.h
+.\ui\gpio.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_tim.h
+.\ui\gpio.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_tim_ex.h
+.\ui\gpio.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_uart.h

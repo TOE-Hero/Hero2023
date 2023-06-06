@@ -1,0 +1,62 @@
+.\ui\rm_task.o: ..\judg\RM_Task.c
+.\ui\rm_task.o: ..\judg\RM_Task.h
+.\ui\rm_task.o: ..\judg\judge.h
+.\ui\rm_task.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal.h
+.\ui\rm_task.o: ../Inc/stm32f4xx_hal_conf.h
+.\ui\rm_task.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_rcc.h
+.\ui\rm_task.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_def.h
+.\ui\rm_task.o: ../Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f4xx.h
+.\ui\rm_task.o: ../Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f407xx.h
+.\ui\rm_task.o: ../Drivers/CMSIS/Include/core_cm4.h
+.\ui\rm_task.o: D:\Program Files\Keil_v5\ARM\ARM_Compiler_5.06u7\Bin\..\include\stdint.h
+.\ui\rm_task.o: ../Drivers/CMSIS/Include/cmsis_version.h
+.\ui\rm_task.o: ../Drivers/CMSIS/Include/cmsis_compiler.h
+.\ui\rm_task.o: ../Drivers/CMSIS/Include/cmsis_armcc.h
+.\ui\rm_task.o: ../Drivers/CMSIS/Include/mpu_armv7.h
+.\ui\rm_task.o: ../Drivers/CMSIS/Device/ST/STM32F4xx/Include/system_stm32f4xx.h
+.\ui\rm_task.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal.h
+.\ui\rm_task.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy/stm32_hal_legacy.h
+.\ui\rm_task.o: D:\Program Files\Keil_v5\ARM\ARM_Compiler_5.06u7\Bin\..\include\stddef.h
+.\ui\rm_task.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_rcc_ex.h
+.\ui\rm_task.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_gpio.h
+.\ui\rm_task.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_gpio_ex.h
+.\ui\rm_task.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_exti.h
+.\ui\rm_task.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_dma.h
+.\ui\rm_task.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_dma_ex.h
+.\ui\rm_task.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_cortex.h
+.\ui\rm_task.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_can.h
+.\ui\rm_task.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_flash.h
+.\ui\rm_task.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_flash_ex.h
+.\ui\rm_task.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_flash_ramfunc.h
+.\ui\rm_task.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_pwr.h
+.\ui\rm_task.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_pwr_ex.h
+.\ui\rm_task.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_spi.h
+.\ui\rm_task.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_tim.h
+.\ui\rm_task.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_tim_ex.h
+.\ui\rm_task.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_uart.h
+.\ui\rm_task.o: ..\judg\CRC.h
+.\ui\rm_task.o: D:\Program Files\Keil_v5\ARM\ARM_Compiler_5.06u7\Bin\..\include\string.h
+.\ui\rm_task.o: ..\bsp\bsp_usart.h
+.\ui\rm_task.o: ..\bsp\bsp_can.h
+.\ui\rm_task.o: D:\Program Files\Keil_v5\ARM\ARM_Compiler_5.06u7\Bin\..\include\stdbool.h
+.\ui\rm_task.o: ../Inc/can.h
+.\ui\rm_task.o: ../Inc/main.h
+.\ui\rm_task.o: ..\bsp\pid.h
+.\ui\rm_task.o: ..\TASK\myTask03.h
+.\ui\rm_task.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/FreeRTOS.h
+.\ui\rm_task.o: ../Inc/FreeRTOSConfig.h
+.\ui\rm_task.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/projdefs.h
+.\ui\rm_task.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/portable.h
+.\ui\rm_task.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/deprecated_definitions.h
+.\ui\rm_task.o: ../Middlewares/Third_Party/FreeRTOS/Source/portable/RVDS/ARM_CM4F/portmacro.h
+.\ui\rm_task.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/mpu_wrappers.h
+.\ui\rm_task.o: ../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS/cmsis_os.h
+.\ui\rm_task.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/task.h
+.\ui\rm_task.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/list.h
+.\ui\rm_task.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/timers.h
+.\ui\rm_task.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/queue.h
+.\ui\rm_task.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/semphr.h
+.\ui\rm_task.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/event_groups.h
+.\ui\rm_task.o: D:\Program Files\Keil_v5\ARM\ARM_Compiler_5.06u7\Bin\..\include\stdio.h
+.\ui\rm_task.o: ..\component\devices\BMI088driver.h
+.\ui\rm_task.o: ..\bsp\struct_typedef.h

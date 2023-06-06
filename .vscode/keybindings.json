@@ -1,0 +1,17 @@
+[
+    // C:\Users\<username>\AppData\Roaming\Code\User\keybindings.json
+    {
+        "key": "alt+t",
+        "command": "workbench.action.tasks.runTask"
+    },
+    {
+        "key": "f7",
+        "command": "workbench.action.tasks.runTask",
+        "args": "build"
+    },
+    {
+        "key": "f8",
+        "command": "workbench.action.tasks.runTask",
+        "args": "ST-link Download"
+    }
+]

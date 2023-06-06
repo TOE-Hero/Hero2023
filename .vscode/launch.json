@@ -1,0 +1,42 @@
+{
+    // 使用 IntelliSense 了解相关属性。 
+    // 悬停以查看现有属性的描述。
+    // 欲了解更多信息，请访问: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+    {
+        "cwd": "${workspaceRoot}",
+        "executable": "./build/${workspaceFolderBasename}.elf",
+        "name": "Debug ST-Link",
+        "request": "launch",
+        "type": "cortex-debug",
+        "runToEntryPoint": "main",
+        "showDevDebugOutput": "none",
+        "servertype": "stlink",
+        "interface":"swd",
+        //"stm32cubeprogrammer":"D:\\ProgramFiles\\STM32CubeProgrammer\\bin",
+        //"serverpath":"D:\\ProgramFiles\\stlink_utility\\ST-LINK Utility\\ST-LINK_gdbserver.exe"
+        "stm32cubeprogrammer":"D:\\Program Files\\STMicroelectronics\\STM32Cube\\STM32CubeProgrammer\\bin",
+        "serverpath":"D:\\Program Files\\STMicroelectronics\\STM32 ST-LINK Utility\\ST-LINK Utility\\ST-LINK_gdbserver.exe"
+    },
+        
+        {
+            //使用ST-Link + openocd调试，注意文件要.elf文件
+            "name": "Debug openocd",
+            "cwd": "${workspaceRoot}",
+            "executable": "./build/${workspaceFolderBasename}.elf",
+            "request": "launch",
+            "type": "cortex-debug",
+            "showDevDebugOutput": "none",
+            "armToolchainPath":"D:\\Program Files\\arm-none-eabi\\bin",
+            "servertype": "openocd",
+            "configFiles": [
+                //"D:/ProgramFiles/openocd/xpack-openocd-0.11.0-3/scripts/interface/stlink-v2.cfg",
+                "D:/Program Files/openocd/share/openocd/scripts/interface/stlink-v2.cfg",
+                //"D:/ProgramFiles/openocd/xpack-openocd-0.11.0-3/scripts/target/stm32f4x.cfg"
+                "D:/Program Files/openocd/share/openocd/scripts/target/stm32f4x.cfg"
+            ]
+            
+        }
+    ]
+}

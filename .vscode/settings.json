@@ -1,0 +1,25 @@
+{
+    "C_Cpp.errorSquiggles": "Disabled",
+    "files.associations": {
+        "*.h": "c",
+        "ins_task.h": "c",
+        "ahrs.h": "c",
+        "ahrs_middleware.h": "c",
+        "stdio.h": "c",
+        "stdbool.h": "c",
+        "stdint.h": "c",
+        "bsp_rc.h": "c",
+        "math.h": "c",
+        "cstdio": "c",
+        "cmath": "c"
+    },
+    "makefile.launchConfigurations": [
+        {
+            "cwd": "D:\\DEV\\RoboMaster\\Hero2022-vscode\\build",
+            "binaryPath": "D:\\DEV\\RoboMaster\\Hero2022-vscode\\build\\Hero2022-vscode.elf",
+            "binaryArgs": []
+        }
+    ],
+    "cortex-debug.showRTOS": false,
+    "C_Cpp.dimInactiveRegions": true
+}

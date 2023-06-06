@@ -1,0 +1,9 @@
+si 1
+speed 4000
+device STM32F407IG
+r
+h
+erase
+loadfile D:\Workspace\C_board_IMU-vscode\build\C_board_IMU-vscode.elf
+r
+q
