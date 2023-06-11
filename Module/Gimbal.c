@@ -62,8 +62,9 @@
 #define MOUSE_Y					(rc_ctrl.mouse.y*0.5)//鼠标y轴DPI，也就是PIT轴DPI
 #define RC_X					-((rc_ctrl.rc.ch[0]*0.05)/66)//遥控器YAW轴DPI
 #define RC_Y					(rc_ctrl.rc.ch[1] * 0.04f)//遥控器PIT轴DPI
-#define Camera_Down				6500//摄像头电机下降编码器值
-#define Camera_Up				-170000//摄像头电机上升编码器值
+#define REDUCTION_RATIO_2006    36//2006电机的减速比
+#define OFFSET_ANGLE_2006       120.0f//2006电机放下与抬起的角度差值
+#define INIT_CURRENT_2006       2000//2006电机初始化需要的电流值正负需要自己判断，注意2006电机电流-10000~10000
 #endif
 /********************** MOON ************************/
 #if	ROBOT_ID == MOON
@@ -131,38 +132,41 @@ extern su_PC_DATA          	pcData;//经过处理的PC数据
 extern chassisMove_t       	s_chassisMove;//底盘信息,包括超级电容
 extern s_FPS_monitor		finalFps;//最终帧率计算值
 /*******************************************************************************/
-uint16_t count_ = 500;
-void Vedio_Transmission_Positon_Init(void)//上电位置自校准
+
+/**
+ * @brief 图传上的2006电机上电位置自校准，都是对全局变量操作，放到云台初始化函数里，这个函数只可以上电运行一次
+ * 
+ */
+void Vedio_Transmission_Positon_Init(void)
 {
-    
+    uint16_t count_ = 500;
     Camera_motor.out_current = 2000;
     while (--count_)
     {
-        HAL_Delay(10);
+        HAL_Delay(10);//10*500=5000，初始化5s，很蠢的写法，好用就行
         CANTx_SendCurrent(&hcan1,0x1FF, 0, Camera_motor.out_current, 0, 0 );
     }
-    Vedio_transmission_init_flag = 1;
-    // if(abs(Camera_motor.back_motor_speed) < 20)
-    //         Vedio_transmission_limit_down = Camera_motor.back_position;
-    
-    // Vedio_transmission_limit_up   = Vedio_transmission_limit_down - (uint32_t)(120.0f/360.0f * 36 * 8191);
-    
+    Vedio_transmission_init_flag = 1;//置位标志位为1
 }
 
 
 #if ROBOT_ID == SUN
+/**
+ * @brief 图传2006运动控制，只有抬起和放下两种位置模式
+ * 
+ */
 void Camera_Move(s_robo_Mode_Setting RoboMode, int32_t camera_down, int32_t camera_up)
 {
     static motor_2006_toggle_flag = 0;
     static uint8_t keyLock_B;
     static uint32_t ChangeCameraStateCount = 0;
-    if(Vedio_transmission_init_flag)
+    if(Vedio_transmission_init_flag)//判断图传初始化标志位，为1则说明已经运行结束了图传初始化函数
     {
-        if(abs(Camera_motor.back_motor_speed) < 20)
-                Vedio_transmission_limit_down = Camera_motor.back_position;
+        if(abs(Camera_motor.back_motor_speed) < 20)//判断电机当前速度小于20，说明2006为静止状态
+            Vedio_transmission_limit_down = Camera_motor.back_position;//如果2006为静止状态，赋值
         
-        Vedio_transmission_limit_up   = Vedio_transmission_limit_down - (int32_t)(120.0f/360.0f * 36 * 8191);
-        Vedio_transmission_init_flag = 0;
+        Vedio_transmission_limit_up   = Vedio_transmission_limit_down - (int32_t)(OFFSET_ANGLE_2006/360.0f*REDUCTION_RATIO_2006*8191);
+        Vedio_transmission_init_flag = 0;//清空标志位
     }
     switch(robot_Mode.chassisMode)
     {
