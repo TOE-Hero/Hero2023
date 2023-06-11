@@ -40,18 +40,6 @@
 	#define PC_FPS					200
 #endif
 
-#define C_LANGUAGE   0
-#define PY_LANGUAGE  1
-#define SWQ_PY_LANGUAGE  2
-//定义视觉程序用的是哪一套
-#define VISION_LANGUAGE SWQ_PY_LANGUAGE
-
-typedef struct  {
-    float fdata[2];
-    unsigned char tail[4];
-}Frame;
-
-Frame send;
 /***************************** static declaration ******************************/
 static float bullet_speed_pit_pre = 0;
 /***************************** extern declaration ******************************/
@@ -66,9 +54,9 @@ extern s_pid_absolute_t 	PIT_motor_pid_speed_imu;
 extern s_robo_Mode_Setting 	robot_Mode;//机器人模式结构体内嵌枚举
 extern s_FPS_monitor 		Fps;
 
-extern visInf_t s_visionInform;//自瞄结构体
-extern float	yawSpd_buff[30];//陀螺仪延迟赋值数组
-extern u_data_32bit bullet_speed;
+extern visInf_t 			s_visionInform;//自瞄结构体
+extern float				yawSpd_buff[30];//陀螺仪延迟赋值数组
+extern u_data_32bit 		bullet_speed;
 
 /*****************************  declaration ******************************/
 float dtaX = 0.0f, visImu = 0.0f, visX;
@@ -97,7 +85,6 @@ void sendMessageToPc(uint8_t selectRB)
 	CDC_Transmit_FS(pcTxBuf,sizeof(pcTxBuf));
 }
 
-#if VISION_LANGUAGE==SWQ_PY_LANGUAGE
 uint8_t pcTxData[5];
 /**
   * @brief          给PC发送数据（USB）（孙闻崎Python版）
@@ -144,9 +131,14 @@ void DealPcData(su_PC_DATA *pcdata, uint8_t *visionBuf)
 	s_visionInform.pitPos	= pcdata->y.data;//pit轴装甲板当前位置
 	s_visionInform.distance	= pcdata->z.data;//装甲板距离
 	{//PIT-offset
-		
+		//上一发弹速赋值
 		bullet_speed_pit_pre = bullet_speed.f;
-		float k1, k2, z, delta_x, y, offsetY;//作用域在这个大括号内的参数
+		float k1;//小孔成像模型相机内参
+		float k2;//相机光心距离枪膛的竖直距离
+		float z;//真实距离，单位:m
+		float offset_x;//摩擦轮轴线中心距离相机光心在云台方向的水平偏移量，默认摩擦轮轴线中心为子弹初速度位置
+		float y;//识别到的目标中心点的纵轴像素数值
+		float offsetY;//裁剪画幅的大小，是裁掉部分的值，而非留下部分
 		#if ROBOT_ID == SUN
 		if(PRESS_E)
 		{
@@ -172,18 +164,18 @@ void DealPcData(su_PC_DATA *pcdata, uint8_t *visionBuf)
 		}
 		#endif
 		k2 = CMERA_TO_MUZZLE;//P7;//摄像头与枪口的实际距离（超参数整定，前提是测量了实际值得出一个模糊值，再进行细调参）
-		delta_x = 0;
-		z = s_visionInform.distance / 100.0f + delta_x*cosf(IMU_All_Value.pit.pitAng*3.1415926/180);//目标的实际距离（单位:m）
+		offset_x = 0;//摩擦轮轴线中心距离相机光心在云台方向的水平偏移量，默认摩擦轮轴线中心为子弹初速度位置
+		z = s_visionInform.distance / 100.0f + offset_x*cosf(IMU_All_Value.pit.pitAng*3.1415926/180);//目标的实际距离（单位:m）
 		y = s_visionInform.pitPos;//纵轴像素数值，从左上角为起始为0（0~480）
 		// 540为1080/2,目标值距离枪口的实际纵向距离，offsetY为视觉裁剪画幅值，k1为简化的相机内参，k2*k1的意义是实际的相机光心相对枪口距离
-		float h = k1 * z * (540 + k2/z - offsetY - y) + delta_x*sinf(IMU_All_Value.pit.pitAng*3.1415926/180);
+		float h = k1 * z * (540 + k2/z - offsetY - y) + offset_x*sinf(IMU_All_Value.pit.pitAng*3.1415926/180);
 		//H=h;//是为了打印h值整定k2，将枪口与装甲板放水平，然后将k1赋值为1，接着调整k2的值直到h为0（最起码要测两个距离（z）值下的k2）
 		float theta,ay,ax, t;//theta为视觉补偿角度
 		if(bullet_speed_pit_pre<15.3) bullet_speed_pit_pre=15.3;
 		if(bullet_speed_pit_pre>15.9) bullet_speed_pit_pre=15.9;
 		float v0 = 15.5;//bullet_speed_pit_pre;//弹速，取一个概率最大的值,或者依照上一发弹丸的弹速，很多时候裁判系统不靠谱，建议给死
-		float offset_angle = 0 * 3.1415926f/180.0f;
-		t = 1.0 * z / v0 / cosf(IMU_All_Value.pit.pitAng*3.1415926f/180.0f + offset_angle);//通过弹速求得弹丸飞行时间
+		float offset_angle = 0;//子弹出摩擦轮时的偏角
+		t = 1.0 * z / v0 / cosf((IMU_All_Value.pit.pitAng + offset_angle) * 3.1415926f/180.0f );//通过弹速求得弹丸飞行时间
 		ay = h + 0.5 * 9.81 * t * t;//目标值距离枪口的实际纵向距离与弹道下坠的加和
 		ax = v0 * t;//实际上就是z
 		theta = 180.0 * asinf(ay / ax);
@@ -280,10 +272,7 @@ void DealPcData(su_PC_DATA *pcdata, uint8_t *visionBuf)
 	lastX = pcdata->x.data;
 	lastY = pcdata->y.data;
 	lastdtaX = dtaX;
-	// if((pcdata->z.data) > 30.0f && (pcdata->z.data) < 700.0f)//识别距离限幅
-	// lastZ = pcdata->z.data;
-	//if((pcdata->z.data) > 700.0f) pcdata->z.data = 700.0f;//7米外识别到认定在7米，为了不让pit补偿时抬枪过高看不到目标
-	#endif //#if VISION_LANGUAGE==SWQ_PY_LANGUAGE
+
 	Fps.pc++;//计算PC接收帧率
 }
 

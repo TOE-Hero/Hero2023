@@ -47,7 +47,7 @@
                     "program build/${workspaceFolderBasename}.elf preverify verify reset exit"
                 ],
                 "problemMatcher": [
-                    "$armcc"
+                    "$gcc"
                 ],
                 "group": "build"
             },
