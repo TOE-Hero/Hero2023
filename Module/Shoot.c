@@ -47,6 +47,7 @@ int16_t 					 Fric_SpeedTarget=0;//裁判系统弹速
 float 						 temperture_offset=0;//随着摩擦轮温度升高，降低摩擦轮转速的补偿值
 float				         average_temperture;//两摩擦轮平均温度
 float                        average_speed;//两摩擦轮平均速度
+uint16_t					 fric_target_speed;//摩擦轮目标速度，用作模式转换
 /************************** static declaration ***********************************/
 static int16_t				 count;//计算射频用，数到射频值重载为0
 static int16_t				 count_judge_loss;//计算射频用，裁判系统如果掉线，也能够发弹，只不过是很慢的射频
@@ -70,9 +71,7 @@ extern uint16_t 			shot_ball_amount;//发射弹丸数量
 extern s_FPS_monitor		finalFps;//最终帧率计算值
 extern s_FPS_monitor	    Fps;//每个要检查FPS的地方++
 /************************** Function declaration *********************************/
-#if SHOOT_ONCE_DECLR==1//以前自己写的发弹函数，已经不用了
-static void shoot_once(float shoot_frequency);
-#endif
+
 static void ShootBall(void);//控制播弹盘电机函数
 /*********************************************************************************/
 /**
@@ -110,6 +109,7 @@ void Shoot_Move(void)
 	
 	ShootBall();
 	average_speed = (abs(FIRE_L_motor.back_motor_speed) + abs(FIRE_R_motor.back_motor_speed)) / 2;
+	fric_target_speed = (abs(FIRE_R_motor.target_motor_speed)+abs(FIRE_L_motor.target_motor_speed)) / 2;
 	average_temperture=(FIRE_R_motor.temperature+FIRE_R_motor.temperature)/2;//摩擦轮电机平均温度
 	//弹速限幅，如果裁判系统不返回弹速的话，一般bullet_speed.f这个值一直为0，那么就有可能做反向补偿而超弹速，所以做一个限幅
 	bullet_speed_ = bullet_speed.f;
@@ -121,12 +121,16 @@ void Shoot_Move(void)
 /***************************** FIRE_R(+) & L(-)***********************************/
 		case S_NULL://摩擦轮发送电流0
 		{
+		FIRE_R_motor.target_motor_speed = FIRE_L_motor.target_motor_speed = 0;
+
 		FIRE_L_motor.out_current=0;
 		FIRE_R_motor.out_current=0;
 		break;
 		}
 		case S_STOP://摩擦轮制动
 		{
+		FIRE_R_motor.target_motor_speed = FIRE_L_motor.target_motor_speed = 0;
+
 		FIRE_L_motor.out_current = motor_single_loop_PID(&FIRE_L_motor_pid_speed , 0 , FIRE_L_motor.back_motor_speed);
 		FIRE_R_motor.out_current = motor_single_loop_PID(&FIRE_R_motor_pid_speed , 0 , FIRE_R_motor.back_motor_speed);
 		break;
@@ -204,18 +208,21 @@ void Shoot_Move(void)
 					FIRE_R_motor.target_motor_speed = FRI_SPD_H;//+temperture_offset+over_ball_speed_offset;
 					FIRE_L_motor.target_motor_speed =-FRI_SPD_H;//-temperture_offset-over_ball_speed_offset;
 				}
+				
 			}
 			else if(Fric_SpeedTarget<=15.0f && Fric_SpeedTarget>0.0f)//如果裁判系统返回的弹速上限不大于15并且大于0的话，低弹速
 			{
 				FIRE_R_motor.target_motor_speed = FRI_SPD_L;
 				FIRE_L_motor.target_motor_speed =-FRI_SPD_L;
 			}
+		
 		FIRE_L_motor.out_current = motor_single_loop_PID(&FIRE_L_motor_pid_speed , FIRE_L_motor.target_motor_speed , \
 															FIRE_L_motor.back_motor_speed);
 		FIRE_R_motor.out_current = motor_single_loop_PID(&FIRE_R_motor_pid_speed , FIRE_R_motor.target_motor_speed , \
 															FIRE_R_motor.back_motor_speed);
 		break;
 		}
+	
 	}
 /********************************** TRANS *****************************************/
 	switch(robot_Mode.transMode)
@@ -304,7 +311,7 @@ static void ShootBall(void)
 			//防止超热量，最大冷却值减一个弹丸的热量大于实时热量时可发弹
 			if((TRANS_motor.coolingheat_limit - BULL_HEAT) >= TRANS_motor.coolingheat)
 			{
-				if((average_speed > (FRI_SPD_H * 0.7)) && finalFps.fric_l  > 850 && finalFps.fric_r > 850)
+				if((average_speed > (fric_target_speed * 0.7)) && finalFps.fric_l  > 850 && finalFps.fric_r > 850)
 				{
 					if(PRESS_G)//如果按住G键，再按左键松开，拨弹盘电机目标位置加10步,是为了破釜沉舟，连发到死，一级6发，二级8发，三级10发
 						SHOOT_KILL_ME;//Kill myself

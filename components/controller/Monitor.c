@@ -22,6 +22,7 @@ void start_Monitor(void)
 	//startFps.board_imu= Fps.board_imu;
 	startFps.yaw		=    Fps.yaw;
 	startFps.pitch		=    Fps.pitch;
+	startFps.vedio_transmssion = Fps.vedio_transmssion;
 	startFps.dbus		=    Fps.dbus;
 	startFps.trans		=    Fps.trans;
 	startFps.fric_l		=    Fps.fric_l;
@@ -46,6 +47,7 @@ void final_Monitor(void)
 	//finalFps.board_imu	=	Fps.board_imu - startFps.board_imu;
 	finalFps.yaw      =	Fps.yaw - startFps.yaw;
 	finalFps.pitch	  =	Fps.pitch - startFps.pitch;
+	finalFps.vedio_transmssion = Fps.vedio_transmssion - startFps.vedio_transmssion;
 	finalFps.trans    =	Fps.trans - startFps.trans;
 	finalFps.fric_l   =	Fps.fric_l - startFps.fric_l;
 	finalFps.fric_r   =	Fps.fric_r - startFps.fric_r;
@@ -164,7 +166,7 @@ void buzzer_Monitor_FPS_state(s_FPS_monitor* final_fps)
 uint8_t isProcessOn(void)
 {
 	if((finalFps.RF_motor > 990 || finalFps.LF_motor > 990 ||\
-		finalFps.LB_motor > 990 || finalFps.RB_motor >990) && finalFps.dbus > 135)
+		finalFps.LB_motor > 990 || finalFps.RB_motor >990) && finalFps.dbus > 60)
 		return 1;
 	else 
 		return 0;

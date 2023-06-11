@@ -16,6 +16,7 @@ typedef struct
 	uint16_t RB_motor;
 	uint16_t yaw;
 	uint16_t pitch;
+	uint16_t vedio_transmssion;
 	uint16_t trans;
 	uint16_t fric_l;
 	uint16_t fric_r;

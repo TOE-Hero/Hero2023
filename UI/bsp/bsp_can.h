@@ -44,7 +44,7 @@ typedef struct
 	int32_t         realYawData;
 	int32_t         realfricSpdData;
 	int32_t         realfricTempData;
-
+	uint8_t			UI_sync_flag;
 }UI_RX;
 
 typedef struct

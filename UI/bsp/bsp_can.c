@@ -151,6 +151,7 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *Target_hcan)
 				uiRx.fric_temp.bit[0] = can2_rx_message.Data[4];//fric温度
 				uiRx.fric_temp.bit[1] = can2_rx_message.Data[5];
 				uiRx.firc_error = can2_rx_message.Data[6];//摩擦轮错误标志位，就是有球卡喉咙的时候会显示
+				uiRx.UI_sync_flag = can2_rx_message.Data[7];//UI刷新标志位，只有该值为1才会开始画UI，否则UI是空的
 				uiRx.realYawData = (int16_t)uiRx.yaw.data;
 				uiRx.realfricSpdData = (int32_t)uiRx.fric_spd.data;
 				uiRx.realfricTempData = (uint32_t)uiRx.fric_temp.data;

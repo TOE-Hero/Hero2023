@@ -49,13 +49,14 @@
  *****************************************************************************
  **/
 /************************ global variables **************************************/
-s_robo_Mode_Setting robot_Mode;//定义机器人模式结构体
+s_robo_Mode_Setting		robot_Mode;//定义机器人模式结构体
 
 /************************** extern declaration***********************************/
-extern RC_ctrl_t rc_ctrl;//遥控器信息结构体
+extern RC_ctrl_t		rc_ctrl;//遥控器信息结构体
 extern s_FPS_monitor	finalFps;//最终帧率计算值
-extern float average_temperture;//两摩擦轮平均温度
-extern float average_speed;//两摩擦轮平均速度
+extern float			average_temperture;//两摩擦轮平均温度
+extern float			average_speed;//两摩擦轮平均速度
+extern uint16_t			fric_target_speed;//摩擦轮目标速度，用作模式转换
 /********************************************************************************/
 /**
   * @brief          模式初始化，放到main.c里
@@ -83,7 +84,8 @@ static void laser_ctrl(void)
 	}
 	else if(robot_Mode.shootMode == S_SWING)
 	{
-		if(average_speed>2000.0f && finalFps.fric_l > 800 && finalFps.fric_r > 800)
+		// 如果两个摩擦轮帧率正常，并且摩擦轮的返回的平均速度大于摩擦轮目标速度的1/2，打开激光（前提是摩擦轮处于旋转模式）
+		if(average_speed > fric_target_speed * 0.5 && finalFps.fric_l > 800 && finalFps.fric_r > 800)
 			laser_on();
 	}
 	else 

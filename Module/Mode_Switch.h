@@ -13,19 +13,19 @@
 #include "INS_task.h"
 #include "Chassis.h"
 #include "Mode_Switch.h"
-/******************* define **************************/
+/*********************** define ****************************/
+/*******************哪台英雄****************************/
 #define	MOON	0x00
 #define SUN		0x01
 
-#define AK60	0
-#define GM6020	1
-/*******************哪台英雄***************************/
 #define	ROBOT_ID	SUN
 //#define	ROBOT_ID	MOON
-/*******************哪个电机***************************/
+/****************PIT轴是哪个电机************************/
+#define GM6020	1
+
 #define PIT_MOTOR	GM6020
-//#define PIT_MOTOR	AK60
-/**************机器人模式设 置结构体*********************/
+
+/**************机器人模式设置结构体*********************/
 typedef struct
 {
 	volatile enum gimbalMode{
@@ -56,15 +56,16 @@ typedef struct
 	volatile int shootOnce;//拨弹盘转动一步标志位（也是发弹一发的标志位）
 	volatile enum roboState
 	{
-		INITIALIZING   = 0,//初始化
-		ON_PROCESSING  = 1,//处理中
-		WELL_PROCESSING= 2,//处理完毕
-		DBUS_ERROR     = 3,//遥控器出错
-		MOTOR_ERROR    = 4,//电机出错
-		JUDGE_ERROR    = 5,//裁判系统出错
-		CAP_ERROR      = 6,//电容控制板出错
-		PC_ERROR       = 7,//PC出错
-		NOMAL          = 8,//一切正常
+		DEAD		   = 0,//机器人死亡
+		INITIALIZING   = 1,//初始化
+		ON_PROCESSING  = 2,//运行中
+		WELL_PROCESSING= 3,//处理完毕
+		DBUS_ERROR     = 4,//遥控器出错
+		MOTOR_ERROR    = 5,//电机出错
+		JUDGE_ERROR    = 6,//裁判系统出错
+		CAP_ERROR      = 7,//电容控制板出错
+		PC_ERROR       = 8,//PC出错
+		NOMAL          = 9,//一切正常
 	}roboState;//机器人状态
 
 }s_robo_Mode_Setting;

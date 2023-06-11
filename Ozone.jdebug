@@ -22,8 +22,8 @@ void OnProjectLoad (void) {
   //
   // Dialog-generated settings
   //
-  Project.AddPathSubstitute ("D:/Workspace/Hero2022-vscode", "$(ProjectDir)");
-  Project.AddPathSubstitute ("d:/workspace/hero2022-vscode", "$(ProjectDir)");
+  Project.AddPathSubstitute ("D:/Workspace/Hero2023-vscode", "$(ProjectDir)");
+  Project.AddPathSubstitute ("d:/workspace/hero2023-vscode", "$(ProjectDir)");
   Project.SetDevice ("STM32F407IG");
   Project.SetHostIF ("USB", "");
   Project.SetTargetIF ("SWD");
@@ -34,8 +34,7 @@ void OnProjectLoad (void) {
   // User settings
   //
   Edit.Preference (PREF_TIMESTAMP_FORMAT, TIMESTAMP_FORMAT_INST_CNT);
-  Edit.SysVar (VAR_POWER_SAMPLING_SPEED, FREQ_5_KHZ);
-  File.Open ("$(ProjectDir)/build/Hero2022-vscode.elf");
+  File.Open ("$(ProjectDir)/build/Hero2023-vscode.elf");
   Project.SetOSPlugin ("$(ProjectDir)/FreeRTOSPlugin_CM4.js");
 }
 

@@ -12,17 +12,17 @@ uint8_t candata[8];
 wl4data  data4bytes;
 wl2data  data2bytes;
 
-int32_t aaaaaaa;
-
 void Start_UI_Task(void)
 {
-	aaaaaaa++;
 	static uint8_t blinkCount = 0;
 	static uint8_t isInit = 0;
+	
+	if(uiRx.UI_sync_flag == 1 || isInit < 80)
+	{
 		osDelay(10);
-		Crosshair(1);  //csadd: 准星  //UpData0
+		Crosshair(1);//准星  //UpData0
 		osDelay(10);
-		Boarder();  //UpData
+		Boarder();//防撞条和下面的吊射线
 		osDelay(10);
 		Crosshair1(1);
 		osDelay(20);
@@ -43,17 +43,11 @@ void Start_UI_Task(void)
 		CharacteFRIC_stateShow(350, 620, 1);  //UpData3
 		osDelay(10);
 		CharacterPitchShow(1100, 600, 1); // x坐标，y坐标，操作类型  //UpData1
-		isInit++;
-    while (1)
+		++isInit;
+	}
+	else
 	{
-		osDelay(10);
 		Crosshair(2);
-		osDelay(10);
-		
-		Crosshair1(1);
-		osDelay(10);
-		
-		Boarder();
 		osDelay(10);
 		
 		FloatDataShow(uiRx.realPitData, uiRx.realPowData, uiRx.realYawData,uiRx.realfricSpdData,uiRx.realfricTempData,2, 2);
@@ -62,13 +56,13 @@ void Start_UI_Task(void)
 		DrawCapVolRectangle(uiRx.realPowData,2 , uiRx.realYawData);
 		osDelay(10);
 		
-        CharacterCHASSISMODstateShow(350, 800, 2);
-        osDelay(10);
+		CharacterCHASSISMODstateShow(350, 800, 2);
+		osDelay(10);
 		
 		CharacterGIMBALstateShow(350, 710, 2);
 		osDelay(10);
 		
-		blinkCount++;
+		blinkCount++;//闪烁计数
 		if(uiRx.fricMode != 2)
 		{
 			if (blinkCount%3)
@@ -84,9 +78,8 @@ void Start_UI_Task(void)
 		{
 			CharacteFRIC_stateShow(350, 620, 2);
 		}
-        osDelay(10);
-        break;
-    }
+		osDelay(10);
+	}
 }
 
 void Start_RM_Task(void){
@@ -105,12 +98,6 @@ void Start_RM_Task(void){
 	}
 	//成为1的条件：云台通过can发送给底盘要传输的数据，后底盘通过串口发送给裁判系统，哨兵貌似没用这个
 	if(JudgeSendFresh == 1){
-#ifdef VERSION17
-		RobotSendMsgToClient(ToJudgeData[0],ToJudgeData[1],ToJudgeData[2]);
-#endif
-#ifdef VERSION18
-		RobotSendMsgToClient(ToJudgeData[0],ToJudgeData[1],ToJudgeData[2],ToJudgeMask);
-#endif
 #ifdef VERSION19
 //		RobotSendMsgToClient(ToJudgeData[0],ToJudgeData[1],ToJudgeData[2],ToJudgeMask);
 #endif

@@ -89,14 +89,17 @@
 float	 	              	RC_accumulate_ch_1=0.0f;//遥控器递增值的中间变量
 float                     	RC_accumulate_ch_1_gyro = 0.0f;//遥控器递增值的中间变量，pit陀螺仪角度作外环模式
 visInf_t 	              	s_visionInform = {0};//自瞄结构体
-float                     	pit_offset_ang = 0;//pit轴云台在使用陀螺仪角度作外环的时候，相对底盘的角度
-float 						Gyro_up_lim = 0;//pit轴云台在使用陀螺仪角度作外环抬头最大值
-float 						Gyro_down_lim = 0;//pit轴云台在使用陀螺仪角度作外环低头最大值
-float 						Gyro_mid = 0;//pit轴云台在使用陀螺仪角度作外环，角度中值
+float                     	pit_offset_ang = 0.0f;//pit轴云台在使用陀螺仪角度作外环的时候，相对底盘的角度
+float 						Gyro_up_lim = 0.0f;//pit轴云台在使用陀螺仪角度作外环抬头最大值
+float 						Gyro_down_lim = 0.0f;//pit轴云台在使用陀螺仪角度作外环低头最大值
+float 						Gyro_mid = 0.0f;//pit轴云台在使用陀螺仪角度作外环，角度中值
+int32_t                    Vedio_transmission_limit_up = 0;
+int32_t                    Vedio_transmission_limit_down = 0;
 /**************************** static variable ************************************/
 // static float Gyro_up_lim = 0;
 // static float Gyro_down_lim = 0;
 // static float Gyro_mid = 0;
+uint8_t Vedio_transmission_init_flag = 0;
 /***************************** extern declaration ******************************/
 extern s_motor_data_t      	YAW_motor;//YAW轴电机信息结构体
 extern s_motor_data_t      	YAW_motor_imu;//YAW轴用陀螺仪完全控制结构体
@@ -128,31 +131,45 @@ extern su_PC_DATA          	pcData;//经过处理的PC数据
 extern chassisMove_t       	s_chassisMove;//底盘信息,包括超级电容
 extern s_FPS_monitor		finalFps;//最终帧率计算值
 /*******************************************************************************/
-
-void Camera_Positon_Calc(void)//上电位置自校准
+uint16_t count_ = 500;
+void Vedio_Transmission_Positon_Init(void)//上电位置自校准
 {
-	//static Camera_Calc_Count = 0;
-    // Camera_motor.out_current = -500;
-
-    // if(Camera_motor.back_motor_speed < 20)
-    //    Camera_Calc_Count++;
-	//if(Camera_Calc_Count > 1000)
+    
+    Camera_motor.out_current = 2000;
+    while (--count_)
+    {
+        HAL_Delay(10);
+        CANTx_SendCurrent(&hcan1,0x1FF, 0, Camera_motor.out_current, 0, 0 );
+    }
+    Vedio_transmission_init_flag = 1;
+    // if(abs(Camera_motor.back_motor_speed) < 20)
+    //         Vedio_transmission_limit_down = Camera_motor.back_position;
+    
+    // Vedio_transmission_limit_up   = Vedio_transmission_limit_down - (uint32_t)(120.0f/360.0f * 36 * 8191);
+    
 }
 
 
 #if ROBOT_ID == SUN
-void Camera_Move(s_robo_Mode_Setting RoboMode)
+void Camera_Move(s_robo_Mode_Setting RoboMode, int32_t camera_down, int32_t camera_up)
 {
     static motor_2006_toggle_flag = 0;
     static uint8_t keyLock_B;
     static uint32_t ChangeCameraStateCount = 0;
-
+    if(Vedio_transmission_init_flag)
+    {
+        if(abs(Camera_motor.back_motor_speed) < 20)
+                Vedio_transmission_limit_down = Camera_motor.back_position;
+        
+        Vedio_transmission_limit_up   = Vedio_transmission_limit_down - (int32_t)(120.0f/360.0f * 36 * 8191);
+        Vedio_transmission_init_flag = 0;
+    }
     switch(robot_Mode.chassisMode)
     {
     /**************************************************** C_NULL ***********************************************************************/
     case C_NULL:
     {
-        Camera_motor.target_pos = Camera_Down;
+        Camera_motor.target_pos = camera_down;
         motor_2006_toggle_flag = 0;
         ChangeCameraStateCount = 0;
         break;
@@ -160,7 +177,7 @@ void Camera_Move(s_robo_Mode_Setting RoboMode)
     /**************************************************** C_APART ***********************************************************************/
     case C_APART:
     {
-        Camera_motor.target_pos = Camera_Down;
+        Camera_motor.target_pos = camera_down;
         motor_2006_toggle_flag = 0;
         ChangeCameraStateCount = 0;
         break;
@@ -168,7 +185,7 @@ void Camera_Move(s_robo_Mode_Setting RoboMode)
     /**************************************************** C_FOLLOW ***********************************************************************/
     case C_FOLLOW:
     {
-        Camera_motor.target_pos = Camera_Down;
+        Camera_motor.target_pos = camera_down;
         motor_2006_toggle_flag = 0;
         ChangeCameraStateCount = 0;
         break;
@@ -176,7 +193,7 @@ void Camera_Move(s_robo_Mode_Setting RoboMode)
     /******************************************************* C_TOP ***********************************************************************/
     case C_TOP:
     {
-        Camera_motor.target_pos = Camera_Down;
+        Camera_motor.target_pos = camera_down;
         motor_2006_toggle_flag = 0;
         ChangeCameraStateCount = 0;
         break;
@@ -191,11 +208,11 @@ void Camera_Move(s_robo_Mode_Setting RoboMode)
         {
             if(motor_2006_toggle_flag)
             {
-                Camera_motor.target_pos = Camera_Down;
+                Camera_motor.target_pos = camera_down;
             }
             else
             {
-                Camera_motor.target_pos = Camera_Up;
+                Camera_motor.target_pos = camera_up;
             }
             motor_2006_toggle_flag = !motor_2006_toggle_flag;
 
@@ -208,11 +225,11 @@ void Camera_Move(s_robo_Mode_Setting RoboMode)
             {
                 if(motor_2006_toggle_flag)
                 {
-                    Camera_motor.target_pos = Camera_Down;
+                    Camera_motor.target_pos = camera_down;
                 }
                 else
                 {
-                    Camera_motor.target_pos = Camera_Up;
+                    Camera_motor.target_pos = camera_up;
                 }
                 motor_2006_toggle_flag = !motor_2006_toggle_flag;
 
@@ -225,7 +242,7 @@ void Camera_Move(s_robo_Mode_Setting RoboMode)
 
     if(robot_Mode.chassisMode == C_NULL)
     {
-    Camera_motor.out_current = 0;//零电流
+        Camera_motor.out_current = 0;//零电流
     }
     else
     {
@@ -245,6 +262,8 @@ void Camera_Move(s_robo_Mode_Setting RoboMode)
   */
 void Gimbal_Init()
 {
+    Vedio_Transmission_Positon_Init();
+    Camera_motor.target_pos = Vedio_transmission_limit_down;
     PIT_motor.target_pos                = PIT_ENCODE_MID_R;//让初始上电时目标值为中值
     YAW_motor_encode.target_motor_ang	= YAW_motor.serial_motor_ang;//上电时的编码器值为ENCODE模式下的目标值
     YAW_motor_encode.target_pos         = YAW_motor.serial_position;//上电时的编码器值为ENCODE模式下的目标值
@@ -252,6 +271,7 @@ void Gimbal_Init()
     PIT_motor_imu.target_ang_imu	    = 0;//0度为GYRO模式下上电时的目标值
     memset(&YAW_motor, 0, sizeof(YAW_motor)); //初始化YAW_motor结构体为0
     memset(&PIT_motor, 0, sizeof(PIT_motor)); //初始化PIT_motor结构体为0
+    memset(&Camera_motor, 0, sizeof(Camera_motor));
 #if	ROBOT_ID == SUN//21国赛英雄
     pid_abs_param_init(&YAW_motor_pid_pos_imu, 35.0f, 0, 0, 0, 1000.0f);//YAW陀螺仪位置PID
     pid_abs_param_init(&YAW_motor_pid_speed_imu, -150.0f, -0.07f, 0, 3000.0f, 28000.0f);  //YAW陀螺仪速度PID
@@ -272,10 +292,6 @@ void Gimbal_Init()
     s_visionInform.yawCenter   = VISION_X_CENTRE;//自瞄YAW轴画幅中心
     YAW_motor.visTarget		   = VISION_X_CENTRE;//令自瞄的输入数据初始化为画幅中心
     s_visionInform.pitchCenter = VISION_Y_CENTRE;//自瞄PIT画幅中心
-
-    Camera_Positon_Calc();
-    Camera_motor.target_pos             = Camera_Down;
-    memset(&Camera_motor, 0, sizeof(Camera_motor));
 
 #endif
 #if ROBOT_ID == MOON//22分区赛英雄
@@ -316,7 +332,7 @@ void Gimbal_Move()
     Gyro_mid = PIT_GYRO_MID_R + pit_offset_ang;
 
 #if	ROBOT_ID == SUN
-    Camera_Move(robot_Mode);
+    Camera_Move(robot_Mode, Vedio_transmission_limit_down, Vedio_transmission_limit_up);
 #endif
 
     switch(robot_Mode.gimbalMode)

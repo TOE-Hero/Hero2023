@@ -19,6 +19,7 @@
 #include "pid.h"
 #include "INS_task.h"
 #include <math.h>
+#include <stdbool.h>
 #include "bsp_usart.h"
 #include "Chassis.h"
 #include "Monitor.h"
@@ -99,10 +100,6 @@ void CAN_Enable(CAN_HandleTypeDef *Target_hcan);
  * @attention filter bank 0 for CAN1 and filter bank 14 for CAN2
  */
 static void CANFilter_Enable(CAN_HandleTypeDef* hcan);
-#if PIT_MOTOR == AK60
-static void Pitch_CanReceive(s_motor_data_t *motor, uint8_t RxData[8]);
-#endif
-static float uint_to_float(int x_int, float x_min, float x_max, int bits);
 
 /**********************************************************************************/
 // Some initialization function --------------------------
@@ -306,7 +303,8 @@ u_data_16bit yawEncode;
 u_data_16bit fricTargetSpd;
 u_data_16bit fricTemp;
 static uint8_t cBoard_txBuff_yaw[8];
-static uint8_t firc_error_flag=0;//摩擦轮状态为开启，并且两个电机返回转速的绝对值之和为1000以下的值时，该标志位置1
+static uint8_t firc_error_flag = 0;//摩擦轮状态为开启，并且两个电机返回转速的绝对值之和为1000以下的值时，该标志位置1
+uint8_t UI_sync_flag = 0;
 void UI_API_YAW(void)
 {
 	float f_yaw_ang = (YAW_motor.back_position/8191.0f)*360.0f;
@@ -314,9 +312,13 @@ void UI_API_YAW(void)
 	fricTargetSpd.u_integer = abs(FIRE_L_motor.target_motor_speed);
 	fricTemp.u_integer = FIRE_L_motor.temperature;
 	if(robot_Mode.shootMode==S_SWING && (abs(FIRE_L_motor.back_motor_speed)+abs(FIRE_R_motor.back_motor_speed)) < 1000)
-	firc_error_flag = 1;
+		firc_error_flag = 1;
 	else firc_error_flag = 0;
-
+	// UI刷新标志位
+	if(PRESS_V && (LS_DOWN && RS_UP))
+		UI_sync_flag = 1;
+	else
+		UI_sync_flag = 0;
 	cBoard_txBuff_yaw[0] = yawEncode.arr2[0];//YAW轴电机角度（需除以100转换）
 	cBoard_txBuff_yaw[1] = yawEncode.arr2[1];
 	cBoard_txBuff_yaw[2] = fricTargetSpd.arr2[0];//摩擦轮电机目标转速
@@ -324,6 +326,7 @@ void UI_API_YAW(void)
 	cBoard_txBuff_yaw[4] = fricTemp.arr2[0];//摩擦轮电机温度
 	cBoard_txBuff_yaw[5] = fricTemp.arr2[1];
 	cBoard_txBuff_yaw[6] = firc_error_flag;
+	cBoard_txBuff_yaw[7] = UI_sync_flag;
 	CAN_Send_bytes(&hcan2, 0x301, cBoard_txBuff_yaw);
 }
 /* ----------------------CAN interruption callback function ------------------------------*/
@@ -415,11 +418,12 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan)
 						}
 			case Camera_ID:
 						{
-							Camera_motor.back_position    =		CAN1_RX_Buff[0]<<8 | CAN1_RX_Buff[1];
-							Camera_motor.back_motor_speed =		CAN1_RX_Buff[2]<<8 | CAN1_RX_Buff[3];
-							Camera_motor.back_current     = 	CAN1_RX_Buff[4]<<8 | CAN1_RX_Buff[5];
-							continue_motor_pos(&Camera_motor);
-							break;
+						Camera_motor.back_position    =		CAN1_RX_Buff[0]<<8 | CAN1_RX_Buff[1];
+						Camera_motor.back_motor_speed =		CAN1_RX_Buff[2]<<8 | CAN1_RX_Buff[3];
+						Camera_motor.back_current     = 	CAN1_RX_Buff[4]<<8 | CAN1_RX_Buff[5];
+						continue_motor_pos(&Camera_motor);
+						Fps.vedio_transmssion++;
+						break;
 						}
 			
 		}

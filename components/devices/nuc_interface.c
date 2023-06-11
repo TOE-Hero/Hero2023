@@ -146,16 +146,16 @@ void DealPcData(su_PC_DATA *pcdata, uint8_t *visionBuf)
 	{//PIT-offset
 		
 		bullet_speed_pit_pre = bullet_speed.f;
-		float k1, k2, z, y, offsetY;//作用域在这个大括号内的参数
+		float k1, k2, z, delta_x, y, offsetY;//作用域在这个大括号内的参数
 		#if ROBOT_ID == SUN
 		if(PRESS_E)
 		{
-			offsetY = 520;//P5;//PIXLE_INTERCEPT_VAL;//1080-摄像头取流数值（英雄取流480）
+			offsetY = 520;//P5;//PIXLE_INTERCEPT_VAL;//1080-摄像头取流数值(英雄取流480)
 			k1 = 0.0005;//PIXEL_CONV_WORLD;//P6;//0.00039;//坐标转换系数，将像素坐标转化为实际坐标(越小枪口越上抬)
 		}
 		else
 		{
-			offsetY = 430;//520;//P5;//PIXLE_INTERCEPT_VAL;//1080-摄像头取流数值（英雄取流480）
+			offsetY = 430;//520;//P5;//PIXLE_INTERCEPT_VAL;//1080-摄像头取流数值(英雄取流480)
 			k1 =0.00045;// 0.0005;//PIXEL_CONV_WORLD;//P6;//0.00039;//坐标转换系数，将像素坐标转化为实际坐标(越小枪口越上抬)
 		}
 		#endif
@@ -172,16 +172,19 @@ void DealPcData(su_PC_DATA *pcdata, uint8_t *visionBuf)
 		}
 		#endif
 		k2 = CMERA_TO_MUZZLE;//P7;//摄像头与枪口的实际距离（超参数整定，前提是测量了实际值得出一个模糊值，再进行细调参）
-		z = s_visionInform.distance / 100.0f;//目标的实际距离（单位:m）
+		delta_x = 0;
+		z = s_visionInform.distance / 100.0f + delta_x*cosf(IMU_All_Value.pit.pitAng*3.1415926/180);//目标的实际距离（单位:m）
 		y = s_visionInform.pitPos;//纵轴像素数值，从左上角为起始为0（0~480）
-		float h = 1.0 * k1 * z * (540 + k2/z - offsetY - y);//540为1080/2,目标值距离枪口的实际纵向距离
+		// 540为1080/2,目标值距离枪口的实际纵向距离，offsetY为视觉裁剪画幅值，k1为简化的相机内参，k2*k1的意义是实际的相机光心相对枪口距离
+		float h = k1 * z * (540 + k2/z - offsetY - y) + delta_x*sinf(IMU_All_Value.pit.pitAng*3.1415926/180);
 		//H=h;//是为了打印h值整定k2，将枪口与装甲板放水平，然后将k1赋值为1，接着调整k2的值直到h为0（最起码要测两个距离（z）值下的k2）
 		float theta,ay,ax, t;//theta为视觉补偿角度
 		if(bullet_speed_pit_pre<15.3) bullet_speed_pit_pre=15.3;
 		if(bullet_speed_pit_pre>15.9) bullet_speed_pit_pre=15.9;
-		float v0 = 15.5;//bullet_speed_pit_pre;//弹速，取一个概率最大的值,或者依照上一发弹丸的弹速
-		t = 1.0 * z / v0 / cosf(IMU_All_Value.pit.pitAng*3.1415926/180);//通过弹速求得弹丸飞行时间
-		ay = h + 0.5 * 9.8 * t * t;//目标值距离枪口的实际纵向距离与弹道下坠的加和
+		float v0 = 15.5;//bullet_speed_pit_pre;//弹速，取一个概率最大的值,或者依照上一发弹丸的弹速，很多时候裁判系统不靠谱，建议给死
+		float offset_angle = 0 * 3.1415926f/180.0f;
+		t = 1.0 * z / v0 / cosf(IMU_All_Value.pit.pitAng*3.1415926f/180.0f + offset_angle);//通过弹速求得弹丸飞行时间
+		ay = h + 0.5 * 9.81 * t * t;//目标值距离枪口的实际纵向距离与弹道下坠的加和
 		ax = v0 * t;//实际上就是z
 		theta = 180.0 * asinf(ay / ax);
 		PIT_motor_imu.visPitTarget = theta;//pit_imu视觉目标角度（带补偿）（陀螺仪角度转换）
