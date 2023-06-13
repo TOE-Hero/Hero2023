@@ -1,18 +1,18 @@
 #include <cmsis_os.h>
 #include <main.h>
 #include <math.h>
+#include "bsp_RC.h"
 #include "bsp_can.h"
-#include "STMGood.h"
 #include "bsp_usart.h"
+#include "bsp_timer.h"
+#include "STMGood.h"
 #include "motor.h"
-#include "Bsp_RC.h"
-#include "math.h"
 #include "pid.h"
 #include "INS_task.h"
+#include "Gimbal.h"
 #include "Chassis.h"
 #include "Shoot.h"
 #include "Mode_Switch.h"
-#include "bsp_can.h"
 #include "Monitor.h"
 /**
  **********************************************************************************
@@ -57,9 +57,11 @@ extern s_FPS_monitor	finalFps;//最终帧率计算值
 extern float			average_temperture;//两摩擦轮平均温度
 extern float			average_speed;//两摩擦轮平均速度
 extern uint16_t			fric_target_speed;//摩擦轮目标速度，用作模式转换
+
 /********************************************************************************/
+
 /**
-  * @brief          模式初始化，放到main.c里
+  * @brief          设定所有模块模式为零电流模式
   * @param[in]      none
   * @retval         none
   */
@@ -70,6 +72,7 @@ void ModeInit(void)
 	robot_Mode.shootMode   = S_NULL;
 	robot_Mode.transMode   = T_NULL;
 }
+
 /**
   * @brief          红点激光控制函数，如果在自瞄模式，则关闭红点 / 如果不在自瞄模式并且摩擦轮处于开启状态，开启红点 / 如果不在自瞄
   * 				模式也没有开启摩擦轮，则关闭红点
@@ -107,7 +110,6 @@ void ModeSwitch(void)
 	if(average_temperture>90) {robot_Mode.shootMode=S_NULL; robot_Mode.transMode=T_NULL;}
 	//红点激光控制
 	laser_ctrl();
-	//laser_on();
 	static int8_t keyLock_PressL, keyLock_PressR = 0;//鼠标左右键标志位
 	static int8_t keyLock_E, keyLock_R, keyLock_CTRL, keyLock_F, \
 					keyLock_C, keyLock_B, keyLock_Q, keyLock_G = 0;//按键抬起触发标志位，置1后要清零
@@ -116,8 +118,10 @@ void ModeSwitch(void)
 	if((finalFps.LB_motor==0)&&(finalFps.LF_motor==0)&&(finalFps.RB_motor==0)&&(finalFps.RF_motor==0)) deafult_mode_flag = 1;
 	static int8_t g_gyro_flag = 0;//云台纯陀螺仪控制模式标志位
 	static uint8_t vis_mode = G_FULL_VISION;//自瞄模式切换标志位
-	if(LS_DOWN)//DOWN
+	if(Is_DBUS_Ok())
 	{
+		if(LS_DOWN)//DOWN
+		{
 			if(LS_DOWN && RS_DOWN)//DOWN | DOWN-------------------------->发送电流0,保护模式
 			{deafult_mode_flag=1;
 				robot_Mode.gimbalMode = G_NULL;
@@ -139,7 +143,7 @@ void ModeSwitch(void)
 				if((!PRESS_F) && keyLock_F==1)
 				{deafult_mode_flag=0;
 					if( (robot_Mode.shootMode == S_STOP) && (robot_Mode.transMode==T_STOP) )
-						 {robot_Mode.shootMode = S_SWING;robot_Mode.transMode=T_SWING;}
+						{robot_Mode.shootMode = S_SWING;robot_Mode.transMode=T_SWING;}
 					else {robot_Mode.shootMode = S_STOP;robot_Mode.transMode=T_STOP;}
 					keyLock_F = 0;
 				}
@@ -163,7 +167,7 @@ void ModeSwitch(void)
 				if(PRESS_R) {keyLock_R=1;	deafult_mode_flag=0;}
 				if(!PRESS_R && keyLock_R==1)
 				{deafult_mode_flag=0;
-				  	if(robot_Mode.gimbalMode==G_ENCODE) {robot_Mode.gimbalMode=G_HALF_GYRO;}
+					if(robot_Mode.gimbalMode==G_ENCODE) {robot_Mode.gimbalMode=G_HALF_GYRO;}
 					if(robot_Mode.chassisMode == C_TOP)	{robot_Mode.chassisMode = C_FOLLOW;}
 					else 
 					{
@@ -180,7 +184,7 @@ void ModeSwitch(void)
 					robot_Mode.chassisMode	= C_FOLLOW;}
 					else
 					{robot_Mode.gimbalMode	= G_ENCODE;
-					 robot_Mode.chassisMode = C_STOP;
+					robot_Mode.chassisMode = C_STOP;
 					}
 					keyLock_CTRL = 0;
 				}
@@ -208,22 +212,22 @@ void ModeSwitch(void)
 					else
 						robot_Mode.gimbalMode	= G_HALF_GYRO;
 				}
-				//G键锁，开启云台陀螺仪模式
-//				if(PRESS_X) {keyLock_G=1;deafult_mode_flag=0;}
-//				if(!PRESS_X && keyLock_X==1)
-//				{
-//					if(robot_Mode.gimbalMode == G_GYRO)
-//					{
-//						robot_Mode.gimbalMode	= G_HALF_GYRO;
-//						g_gyro_flag=0;
-//					}
-//					else 
-//					{
-//						robot_Mode.gimbalMode	= G_GYRO;
-//						g_gyro_flag=1;
-//					}
-//					keyLock_X = 0;
-//				}
+				// G键锁，开启云台陀螺仪模式
+				// if(PRESS_X) {keyLock_G=1;deafult_mode_flag=0;}
+				// if(!PRESS_X && keyLock_X==1)
+				// {
+				// 	if(robot_Mode.gimbalMode == G_GYRO)
+				// 	{
+				// 		robot_Mode.gimbalMode	= G_HALF_GYRO;
+				// 		g_gyro_flag=0;
+				// 	}
+				// 	else 
+				// 	{
+				// 		robot_Mode.gimbalMode	= G_GYRO;
+				// 		g_gyro_flag=1;
+				// 	}
+				// 	keyLock_X = 0;
+				// }
 				//如果默认模式标志位不被置为0，则默认模式标志位为1有效，进入默认模式
 				if(deafult_mode_flag == 1)
 				{
@@ -235,11 +239,11 @@ void ModeSwitch(void)
 				
 				
 				
-			}
-	}
-	/****************************遥控器控制调试*******************************/
-	if(LS_MID)//MID
-	{
+			}//LS_DOWN && RS_UP
+		}//LS_DOWN
+		/****************************遥控器控制调试*******************************/
+		if(LS_MID)//MID
+		{
 			if(LS_MID && RS_DOWN)//MID | DOWN
 			{deafult_mode_flag=1;
 				robot_Mode.gimbalMode = G_HALF_GYRO;//G_FULL_VISION;//G_HALF_GYRO;//G_ENCODE;
@@ -254,16 +258,16 @@ void ModeSwitch(void)
 				robot_Mode.shootMode  = S_STOP;
 				robot_Mode.transMode  = T_NULL;
 			}
-			 if(LS_MID && RS_UP)//MID | UP
-			 {deafult_mode_flag=1;
+			if(LS_MID && RS_UP)//MID | UP
+			{deafult_mode_flag=1;
 				robot_Mode.gimbalMode = G_HALF_GYRO;//G_HALF_GYRO;//G_FULL_VISION;//G_HALF_GYRO;//G_FULL_VISION;
 				robot_Mode.chassisMode= C_TOP;// C_APART;//C_TOP;
 				robot_Mode.shootMode  = S_STOP;
 				robot_Mode.transMode  = T_NULL;
-			 }
-	}
-	if(LS_UP)//UP
-	{
+			}
+		}//LS_MID
+		if(LS_UP)//UP
+		{
 			if(LS_UP && RS_DOWN)//UP | DOWN
 			{deafult_mode_flag=1;
 				robot_Mode.gimbalMode = G_ENCODE;//G_FULL_VISION;//G_HALF_GYRO;
@@ -285,8 +289,12 @@ void ModeSwitch(void)
 				robot_Mode.shootMode  = S_SWING;
 				robot_Mode.transMode  = T_SWING;
 			}
+		}//LS_UP
+	}//Is_DBUS_Ok()
+	else
+	{
+		ModeInit();
 	}
-
 
 }
 

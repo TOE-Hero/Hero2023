@@ -13,7 +13,7 @@
 #include "usart.h"
 #include "bsp_usart.h"
 #include "STMGood.h"
-#include "Bsp_RC.h"
+#include "bsp_RC.h"
 #include "nuc_interface.h"
 #include "printf.h"
 

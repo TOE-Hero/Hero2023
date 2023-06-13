@@ -3,7 +3,7 @@
 #include "bsp_delay.h"
 #include "motor.h"
 #include "bsp_can.h"
-#include "Bsp_RC.h"
+#include "bsp_RC.h"
 #include "bsp_usart.h"
 #include "pid.h"
 #include "STMGood.h"

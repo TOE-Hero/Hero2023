@@ -80,12 +80,12 @@ VsCode工程缺点：
 
 4、有关stm32外接设备相关的都在./components/devices,
    串口重定向格式化文件print.c也在里面，这个是arm-gcc工程专有的，如果你用Keil，简单重定向就好了，参考实验室祖传代码或者正点原子的教程
-   其中的设备有：BMI088、IST8310、NUC、串口发送（printf）。
+   其中的设备有：BMI088、IST8310、NUC、串口发送（printf）、电机。
+   电机编码器解算在motor.c里；
+   STMGood上位机在STMGood.c里，已经开启了所有通道的参数输入。
 
-5、有关控制设备的都在./components/controller,比如：
-   计算总线fps和蜂鸣器报警在Monitor里；
-   STMGood上位机在STMGood.c里，已经开启了所有通道的参数输入；
-   电机编码器解算在motor.c里。
+5、有关控制设备的都在./components/controller里：
+   计算总线fps和蜂鸣器报警在Monitor里。
 
 6、有关控制算法的都在./components/algorithm里，
    pid.c文件是一些pid解算的接口；

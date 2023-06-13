@@ -30,6 +30,7 @@ void start_Monitor(void);
 void final_Monitor(void);
 uint8_t isProcessOn(void);
 void isInit_Ok(void);
+bool_t Is_DBUS_Ok(void);
 void Monitor_FPS_state(s_FPS_monitor* final_fps);
 void buzzer_Monitor_FPS_state(s_FPS_monitor* final_fps);
 

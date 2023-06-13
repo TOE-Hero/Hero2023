@@ -7,69 +7,70 @@
 #include "STMGood.h"
 #include "bsp_usart.h"
 #include "motor.h"
-#include "Bsp_RC.h"
+#include "bsp_RC.h"
 #include "math.h"
 #include "Mode_Switch.h"
 #include "bsp_timer.h"
 #include "printf.h"
-
+#include "RM_Judge.h"
 /**************************** Debug *****************************/
-#define T_SWING_DEBUG       0	//pid_abs_evaluation(&TRANS_motor_pid_pos,P7,0,0,0,S7);
+#define T_SWING_DEBUG       	0	//pid_abs_evaluation(&TRANS_motor_pid_pos,P7,0,0,0,S7);
 								//pid_abs_evaluation(&TRANS_motor_pid_speed,P8,I8,D8,0,16000.0f);
 /**************************** define ****************************/
 #if	ROBOT_ID == SUN
 	
-	#define FRI_SPD_H       4250//4050// 16m/s弹速,一般白弹丸要比透明弹丸少70左右
-	#define FRI_SPD_H_LOB	4300// 16m/s弹速，吊射弹速，同上 
-	#define FRI_SPD_L       2700// 10m/s弹速
+	#define FRI_SPD_H       	4250//4050// 16m/s弹速,一般白弹丸要比透明弹丸少70左右
+	#define FRI_SPD_H_LOB		4300// 16m/s弹速，吊射弹速，同上 
+	#define FRI_SPD_L       	2700// 10m/s弹速
 #endif
 #if	ROBOT_ID == MOON
-	#define FRI_SPD_H       4320//4050// 16m/s弹速,一般白弹丸要比透明弹丸少70左右
-	#define FRI_SPD_H_LOB	4350 //4180// 16m/s弹速，吊射弹速，同上
-	#define FRI_SPD_L       2700// 10m/s弹速
+	#define FRI_SPD_H       	4320//4050// 16m/s弹速,一般白弹丸要比透明弹丸少70左右
+	#define FRI_SPD_H_LOB		4350 //4180// 16m/s弹速，吊射弹速，同上
+	#define FRI_SPD_L       	2700// 10m/s弹速
 #endif
 
-#define SHOOT_ONCE_DECLR 	 0//shoot_once()函数是否定义宏定义，0为不定义，没用到这个函数，但为了没worning就给0了
+#define SHOOT_ONCE_DECLR 	 	0//shoot_once()函数是否定义宏定义，0为不定义，没用到这个函数，但为了没worning就给0了
 
-#define BULL_HEAT 			 100//每发弹丸的热量
+#define BULL_HEAT 			 	100//每发弹丸的热量
 //射频，测试用
-#define S_LOW_FREQUENCY 	 1500//低射频
-#define S_MID_FREQUENCY 	 800//中射频
-#define S_HIGH_FREQUENCY 	 500//高射频
+#define S_LOW_FREQUENCY 	 	1500//低射频
+#define S_MID_FREQUENCY 	 	800//中射频
+#define S_HIGH_FREQUENCY 	 	500//高射频
 
-#define INTERVAL_VAL		 340.0f//区间值，防止按下鼠标左键时在转向下一步的途中再转一步
-#define SHOOT_ONE_BALL    	 ({do{TRANS_motor.target_pos-= TRANS_STEP;}while(0);1;})//播弹盘转一步，发射一发，这是个宏函数，最后一个表达式的值为该函数返回值
-#define SHOOT_KILL_ME   	 do{TRANS_motor.target_pos-= 10*TRANS_STEP;}while(0)//播弹盘转10步，将自己射死（按住B再按鼠标左键）
-#define SHOOT_BACK_ONE_STEP	 do{TRANS_motor.target_pos+= TRANS_STEP;}while(0)//卡住的话回转一步
+#define INTERVAL_VAL		 	340.0f//区间值，防止按下鼠标左键时在转向下一步的途中再转一步
+#define SHOOT_ONE_BALL    		({do{TRANS_motor.target_pos-= TRANS_STEP;}while(0);1;})//播弹盘转一步，发射一发，这是个宏函数，最后一个表达式的值为该函数返回值
+#define SHOOT_KILL_ME   	 	do{TRANS_motor.target_pos-= 10*TRANS_STEP;}while(0)//播弹盘转10步，将自己射死（按住B再按鼠标左键）
+#define SHOOT_BACK_ONE_STEP		do{TRANS_motor.target_pos+= TRANS_STEP;}while(0)//卡住的话回转一步
 
 /**************************** global variable ************************************/
-int16_t 					 Fric_SpeedTarget=0;//裁判系统弹速
-float 						 temperture_offset=0;//随着摩擦轮温度升高，降低摩擦轮转速的补偿值
-float				         average_temperture;//两摩擦轮平均温度
-float                        average_speed;//两摩擦轮平均速度
-uint16_t					 fric_target_speed;//摩擦轮目标速度，用作模式转换
+int16_t 					 	Fric_SpeedTarget=0;//裁判系统弹速
+float 						 	temperture_offset=0;//随着摩擦轮温度升高，降低摩擦轮转速的补偿值
+float				         	average_temperture;//两摩擦轮平均温度
+float                        	average_speed;//两摩擦轮平均速度
+uint16_t					 	fric_target_speed;//摩擦轮目标速度，用作模式转换
 /************************** static declaration ***********************************/
-static int16_t				 count;//计算射频用，数到射频值重载为0
-static int16_t				 count_judge_loss;//计算射频用，裁判系统如果掉线，也能够发弹，只不过是很慢的射频
-static int16_t 				 shootFreq=S_MID_FREQUENCY; // 设定射频
+static int16_t				 	count;//计算射频用，数到射频值重载为0
+static int16_t				 	count_judge_loss;//计算射频用，裁判系统如果掉线，也能够发弹，只不过是很慢的射频
+static int16_t 				 	shootFreq=S_MID_FREQUENCY; // 设定射频
 
-static uint8_t keyLock_Z=0;//键盘按键Z锁标志位
-static uint8_t keyLock_X=0;//键盘按键X锁标志位
-static uint8_t keyLock_E=0;//键盘按键E锁标志位
+static uint8_t 					keyLock_Z=0;//键盘按键Z锁标志位
+static uint8_t 					keyLock_X=0;//键盘按键X锁标志位
+static uint8_t 					keyLock_E=0;//键盘按键E锁标志位
 
-static int16_t fric_speed_offset_key=0;//摩擦轮速度补偿值,用键盘控制
-static float bullet_speed_ = 0;//弹速信息，当弹速过低时用作反向补偿
-static uint8_t over_ball_speed_flag = 0;//超弹速补偿标志位
-static uint16_t over_ball_speed_amount = 0;//超弹速补偿计数值，超一次弹速加一次1
-static uint16_t last_shot_ball_amount = 0;//上一次超弹速补偿计数值，用来与超弹速计数值做比较
-static int16_t over_ball_speed_offset = 0;//超弹速补偿值
-static bool    shoot_flag;//是否发弹标志位，根据摩擦轮转速判定
+static int16_t					fric_speed_offset_key=0;//摩擦轮速度补偿值,用键盘控制
+static float 					bullet_speed_ = 0;//弹速信息，当弹速过低时用作反向补偿
+static uint8_t 					over_ball_speed_flag = 0;//超弹速补偿标志位
+static uint16_t 				over_ball_speed_amount = 0;//超弹速补偿计数值，超一次弹速加一次1
+static uint16_t 				last_shot_ball_amount = 0;//上一次超弹速补偿计数值，用来与超弹速计数值做比较
+static int16_t 					over_ball_speed_offset = 0;//超弹速补偿值
+static bool    					shoot_flag;//是否发弹标志位，根据摩擦轮转速判定
 /************************** extern declaration ***********************************/
-extern s_robo_Mode_Setting	robot_Mode;//机器人模式
-extern u_data_32bit 		bullet_speed;//裁判系统弹速
-extern uint16_t 			shot_ball_amount;//发射弹丸数量
-extern s_FPS_monitor		finalFps;//最终帧率计算值
-extern s_FPS_monitor	    Fps;//每个要检查FPS的地方++
+extern s_robo_Mode_Setting		robot_Mode;//机器人模式
+extern u_data_32bit 			bullet_speed;//裁判系统弹速
+extern uint16_t 				shot_ball_amount;//发射弹丸数量
+extern s_FPS_monitor			finalFps;//最终帧率计算值
+extern s_FPS_monitor	    	Fps;//每个要检查FPS的地方++
+extern s_rm_judge_shoot_data_t 	Judge_ShootData;
 /************************** Function declaration *********************************/
 
 static void ShootBall(void);//控制播弹盘电机函数
@@ -104,8 +105,8 @@ void Shoot_Init(void)
 
 void Shoot_Move(void)
 {
-	// TRANS_motor.coolingheat_limit = 34400;
-	// TRANS_motor.coolingheat=0;
+	// Judge_ShootData.coolingheat_limit = 34400;
+	// Judge_ShootData.coolingheat=0;
 	
 	ShootBall();
 	average_speed = (abs(FIRE_L_motor.back_motor_speed) + abs(FIRE_R_motor.back_motor_speed)) / 2;
@@ -277,7 +278,7 @@ static void ShootBall(void)
 	if( (rc_ctrl.rc.ch[4]>=600) && (LS_UP) )//按固定射频发射，射频在下面设定，左拨杆UP且左上角拨轮拨到最上方时生效
 	{
 		
-		if((TRANS_motor.coolingheat_limit - BULL_HEAT) >= TRANS_motor.coolingheat)//枪口热量闭环，防止超枪口热量
+		if((Judge_ShootData.coolingheat_limit - BULL_HEAT) >= Judge_ShootData.coolingheat)//枪口热量闭环，防止超枪口热量
 		{
 			count++;
 			if(count>shootFreq)	count=shootFreq;//count值重载，也用来控制射频
@@ -286,7 +287,7 @@ static void ShootBall(void)
 		{
 			count = 0;
 		}
-		//TRANS_motor.coolingheat_limit = 34400;// 没接裁判系统的时候固定热量
+		//Judge_ShootData.coolingheat_limit = 34400;// 没接裁判系统的时候固定热量
 	}
 	else	count = 0;
 	#endif
@@ -309,7 +310,7 @@ static void ShootBall(void)
 		else
 		{
 			//防止超热量，最大冷却值减一个弹丸的热量大于实时热量时可发弹
-			if((TRANS_motor.coolingheat_limit - BULL_HEAT) >= TRANS_motor.coolingheat)
+			if((Judge_ShootData.coolingheat_limit - BULL_HEAT) >= Judge_ShootData.coolingheat)
 			{
 				if((average_speed > (fric_target_speed * 0.7)) && finalFps.fric_l  > 850 && finalFps.fric_r > 850)
 				{
@@ -337,7 +338,7 @@ static void ShootBall(void)
 	}
 }
 
-static void CalculateCoolHeat(uint8_t robot_level, s_motor_data_t *trans_motor, float ball_speed_limit, bool *shoot_flag)
+static void CalculateCoolHeat(uint8_t robot_level, s_rm_judge_shoot_data_t *judge_shoot_data, float ball_speed_limit, bool *shoot_flag)
 {
 static int16_t cal_freq = 0;
 cal_freq++;
@@ -348,20 +349,20 @@ if(ball_speed_limit > 15.0f || ball_speed_limit < 0.0f)
 	switch (robot_level)
 	{
 	case 1:
-		trans_motor->coolingheat_limit = 100;
-		trans_motor->coolingheat_every_second = 20;
+		judge_shoot_data->coolingheat_limit = 100;
+		judge_shoot_data->coolingheat_every_second = 20;
 		break;
 	case 2:
-		trans_motor->coolingheat_limit = 200;
-		trans_motor->coolingheat_every_second = 60;
+		judge_shoot_data->coolingheat_limit = 200;
+		judge_shoot_data->coolingheat_every_second = 60;
 		break;
 	case 3:
-		trans_motor->coolingheat_limit = 300;
-		trans_motor->coolingheat_every_second = 100;
+		judge_shoot_data->coolingheat_limit = 300;
+		judge_shoot_data->coolingheat_every_second = 100;
 		break;
 	default:
-		trans_motor->coolingheat_limit = 100;
-		trans_motor->coolingheat_every_second = 20;
+		judge_shoot_data->coolingheat_limit = 100;
+		judge_shoot_data->coolingheat_every_second = 20;
 		break;
 	}
 }
@@ -370,28 +371,27 @@ else if(ball_speed_limit<=15.0f && ball_speed_limit>0.0f)//爆发模式，10m/s
 	switch (robot_level)
 	{
 	case 1:
-		trans_motor->coolingheat_limit = 200;
-		trans_motor->coolingheat_every_second = 40;
+		judge_shoot_data->coolingheat_limit = 200;
+		judge_shoot_data->coolingheat_every_second = 40;
 		break;
 	case 2:
-		trans_motor->coolingheat_limit = 350;
-		trans_motor->coolingheat_every_second = 80;
+		judge_shoot_data->coolingheat_limit = 350;
+		judge_shoot_data->coolingheat_every_second = 80;
 		break;
 	case 3:
-		trans_motor->coolingheat_limit = 500;
-		trans_motor->coolingheat_every_second = 120;
+		judge_shoot_data->coolingheat_limit = 500;
+		judge_shoot_data->coolingheat_every_second = 120;
 		break;
 	default:
-		trans_motor->coolingheat_limit = 100;
-		trans_motor->coolingheat_every_second = 20;
+		judge_shoot_data->coolingheat_limit = 100;
+		judge_shoot_data->coolingheat_every_second = 20;
 		break;
 	}
 }
 
-
 if(!(cal_freq%1000))
 {
-	trans_motor->coolingheat = trans_motor->coolingheat - trans_motor->coolingheat_every_second;
+	judge_shoot_data->coolingheat = judge_shoot_data->coolingheat - judge_shoot_data->coolingheat_every_second;
 }
 
 }

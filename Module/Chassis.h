@@ -7,7 +7,7 @@
 #include "STMGood.h"
 #include "bsp_usart.h"
 #include "motor.h"
-#include "Bsp_RC.h"
+#include "bsp_RC.h"
 #include "pid.h"
 #include "INS_task.h"
 /*********************** 底盘信息结构体 *************************/

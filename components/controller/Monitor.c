@@ -1,3 +1,4 @@
+#include <stdbool.h>
 #include "Monitor.h"
 #include "Mode_Switch.h"
 #include "bsp_buzzer.h"
@@ -182,13 +183,24 @@ void isInit_Ok(void)
 {
 	if(robot_Mode.roboState == ON_PROCESSING)
 		return;
-	if(Fps.dbus < 140)
+	if(Fps.dbus < 60)
 		robot_Mode.roboState = INITIALIZING;
 	else
 		robot_Mode.roboState = ON_PROCESSING;
 
 }
 
-
+/**
+ * @brief 判断遥控器帧率（70左右，超过30为正常）是否正常，0为不正常，1为正常
+ * 
+ */
+bool_t Is_DBUS_Ok(void)
+{
+	//如果DBUS遥控器帧率低于30（正常70），返回0
+	if(finalFps.dbus < 30)
+		return 0;
+	else
+		return 1;
+}
 
 

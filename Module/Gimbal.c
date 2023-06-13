@@ -9,7 +9,7 @@
 #include "STMGood.h"
 #include "bsp_usart.h"
 #include "motor.h"
-#include "Bsp_RC.h"
+#include "bsp_RC.h"
 #include "INS_task.h"
 #include "Mode_Switch.h"
 #include "nuc_interface.h"
@@ -64,7 +64,7 @@
 #define RC_Y					(rc_ctrl.rc.ch[1] * 0.04f)//遥控器PIT轴DPI
 #define REDUCTION_RATIO_2006    36//2006电机的减速比
 #define OFFSET_ANGLE_2006       120.0f//2006电机放下与抬起的角度差值
-#define INIT_CURRENT_2006       2000//2006电机初始化需要的电流值正负需要自己判断，注意2006电机电流-10000~10000
+#define INIT_CURRENT_2006       1300//2006电机初始化需要的电流值正负需要自己判断，注意2006电机电流-10000~10000
 #endif
 /********************** MOON ************************/
 #if	ROBOT_ID == MOON
@@ -140,7 +140,7 @@ extern s_FPS_monitor		finalFps;//最终帧率计算值
 void Vedio_Transmission_Positon_Init(void)
 {
     uint16_t count_ = 500;
-    Camera_motor.out_current = 2000;
+    Camera_motor.out_current = INIT_CURRENT_2006;
     while (--count_)
     {
         HAL_Delay(10);//10*500=5000，初始化5s，很蠢的写法，好用就行
@@ -160,6 +160,7 @@ void Camera_Move(s_robo_Mode_Setting RoboMode, int32_t camera_down, int32_t came
     static motor_2006_toggle_flag = 0;
     static uint8_t keyLock_B;
     static uint32_t ChangeCameraStateCount = 0;
+    //初始化图传位置
     if(Vedio_transmission_init_flag)//判断图传初始化标志位，为1则说明已经运行结束了图传初始化函数
     {
         if(abs(Camera_motor.back_motor_speed) < 20)//判断电机当前速度小于20，说明2006为静止状态
@@ -255,7 +256,6 @@ void Camera_Move(s_robo_Mode_Setting RoboMode, int32_t camera_down, int32_t came
                                (float)Camera_motor.target_pos, \
                                (float)Camera_motor.back_motor_speed);
     }
-
 
 }
 #endif

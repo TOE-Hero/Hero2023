@@ -46,7 +46,7 @@
 #include "ramp.h"
 #include "Mode_Switch.h"
 #include "motor.h"
-#include "Bsp_RC.h"
+#include "bsp_RC.h"
 #include "pid.h"
 #include "STMGood.h"
 #include "Gimbal.h"

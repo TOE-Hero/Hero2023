@@ -25,6 +25,7 @@
 #include "Monitor.h"
 #include "nuc_interface.h"
 #include "Mode_Switch.h"
+#include "RM_Judge.h"
 /********************************** AK-60 define ***********************************/
 #define P_MIN -12.5f
 #define P_MAX 12.5f
@@ -57,6 +58,8 @@ extern s_motor_data_t RF_motor;
 extern s_motor_data_t LB_motor;
 extern s_motor_data_t RB_motor;
 /***************** Judge *****************/
+extern s_rm_judge_shoot_data_t Judge_ShootData;
+
 u_data_16bit pitch_gyro_spd;
 u_data_16bit chassis_c;
 u_data_16bit chassis_v;
@@ -88,7 +91,7 @@ extern chassisMove_t	s_chassisMove;
 extern s_FPS_monitor	Fps;
 extern int16_t 			Fric_SpeedTarget;
 extern uint8_t          capExpect_txBuff[8];
-extern s_FPS_monitor       finalFps;
+extern s_FPS_monitor    finalFps;
 /****************************** Functions declaration *****************************/
 void CAN_Enable(CAN_HandleTypeDef *Target_hcan);
 
@@ -270,11 +273,6 @@ void UI_API(void)
 {
 	static uint8_t cBoard_txBuff[8];
 	float capV=s_chassisMove.capVol;
-	// if(capV>28) capV=28;
-	// // 17-28映射为0-100，方便UI显示
-	// cap_precentV.integer = ((capV-17)/11)*100;
-	// if(cap_precentV.integer<0) cap_precentV.integer=0;
-	    //cap_precentV.integer= ((capV-17)/5)*100;
 
     #if	ROBOT_ID == SUN
     cap_precentV.integer = capV * capV / ( 29.0 * 29.0) * 100;
@@ -330,7 +328,7 @@ void UI_API_YAW(void)
 	CAN_Send_bytes(&hcan2, 0x301, cBoard_txBuff_yaw);
 }
 /* ----------------------CAN interruption callback function ------------------------------*/
-uint16_t test_canRx=0;
+
 /**
  * @brief     interrupt function in IRQ
  * 进入回调的条件：1.CAN FIFO 0消息挂起中断使能，CAN_IT_RX_FIFO0_MSG_PENDING置1（自定义的CAN_Enable中使能）
@@ -486,7 +484,7 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan)
 						s_chassisMove.chassis_power = chassis_power.f;//实时功率
 						coolingheat.arr2[0] = CAN2_RX_Buff[6];
 						coolingheat.arr2[1] = CAN2_RX_Buff[7];
-						TRANS_motor.coolingheat = coolingheat.u_integer;//拨弹盘（枪管）实时热量
+						Judge_ShootData.coolingheat = coolingheat.u_integer;//拨弹盘（枪管）实时热量
 						break;
 						}
 				case JudgeRobotState_ID://机器人ID，机器人等级，枪口热量上限，弹速上限，底盘功率上限
@@ -495,7 +493,7 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan)
 						RobotLevel = CAN2_RX_Buff[1];//机器人等级（1，2，3）
 						coolingheat_limit.arr2[0] = CAN2_RX_Buff[2];
 						coolingheat_limit.arr2[1] = CAN2_RX_Buff[3];
-						TRANS_motor.coolingheat_limit = coolingheat_limit.u_integer;//拨弹盘（枪管）最大冷却值
+						Judge_ShootData.coolingheat_limit = coolingheat_limit.u_integer;//拨弹盘（枪管）最大冷却值
 						friSped.arr2[0] = CAN2_RX_Buff[4];
 						friSped.arr2[1] = CAN2_RX_Buff[5];
 						Fric_SpeedTarget = friSped.integer;//最大弹速
@@ -507,22 +505,22 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan)
 						}
 				case Judge_ShootData_ID:
 						{
-							bullet_speed.arr4[0] = CAN2_RX_Buff[3];
-							bullet_speed.arr4[1] = CAN2_RX_Buff[4];
-							bullet_speed.arr4[2] = CAN2_RX_Buff[5];
-							bullet_speed.arr4[3] = CAN2_RX_Buff[6];
-							shot_ball_amount++;
+						bullet_speed.arr4[0] = CAN2_RX_Buff[3];
+						bullet_speed.arr4[1] = CAN2_RX_Buff[4];
+						bullet_speed.arr4[2] = CAN2_RX_Buff[5];
+						bullet_speed.arr4[3] = CAN2_RX_Buff[6];
+						shot_ball_amount++;
 						}
 				case JudgePowerState:
 						{
-							PowerState[0] = CAN2_RX_Buff[0];
-							PowerState[1] = CAN2_RX_Buff[1];
-							PowerState[2] = CAN2_RX_Buff[2];
-							if(finalFps.judge > 8)
-							{
-							capExpect_txBuff[4] = PowerState[1];
-							}
-							JudgePowerStateCount++;
+						PowerState[0] = CAN2_RX_Buff[0];
+						PowerState[1] = CAN2_RX_Buff[1];
+						PowerState[2] = CAN2_RX_Buff[2];
+						if(finalFps.judge > 8)
+						{
+						capExpect_txBuff[4] = PowerState[1];
+						}
+						JudgePowerStateCount++;
 						}
 		}
 	}
