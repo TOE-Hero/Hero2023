@@ -7,7 +7,7 @@
 .\ui\main.o: ../Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f4xx.h
 .\ui\main.o: ../Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f407xx.h
 .\ui\main.o: ../Drivers/CMSIS/Include/core_cm4.h
-.\ui\main.o: D:\Program Files\Keil_v5\ARM\ARM_Compiler_5.06u7\Bin\..\include\stdint.h
+.\ui\main.o: D:\ProgramFiles\Keil\ARM\ARMCC\Bin\..\include\stdint.h
 .\ui\main.o: ../Drivers/CMSIS/Include/cmsis_version.h
 .\ui\main.o: ../Drivers/CMSIS/Include/cmsis_compiler.h
 .\ui\main.o: ../Drivers/CMSIS/Include/cmsis_armcc.h
@@ -15,7 +15,7 @@
 .\ui\main.o: ../Drivers/CMSIS/Device/ST/STM32F4xx/Include/system_stm32f4xx.h
 .\ui\main.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal.h
 .\ui\main.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy/stm32_hal_legacy.h
-.\ui\main.o: D:\Program Files\Keil_v5\ARM\ARM_Compiler_5.06u7\Bin\..\include\stddef.h
+.\ui\main.o: D:\ProgramFiles\Keil\ARM\ARMCC\Bin\..\include\stddef.h
 .\ui\main.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_rcc_ex.h
 .\ui\main.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_gpio.h
 .\ui\main.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_gpio_ex.h
@@ -54,9 +54,9 @@
 .\ui\main.o: ../Inc/usart.h
 .\ui\main.o: ../Inc/gpio.h
 .\ui\main.o: ..\bsp\bsp_usart.h
-.\ui\main.o: D:\Program Files\Keil_v5\ARM\ARM_Compiler_5.06u7\Bin\..\include\stdio.h
+.\ui\main.o: D:\ProgramFiles\Keil\ARM\ARMCC\Bin\..\include\stdio.h
 .\ui\main.o: ..\bsp\bsp_can.h
-.\ui\main.o: D:\Program Files\Keil_v5\ARM\ARM_Compiler_5.06u7\Bin\..\include\stdbool.h
+.\ui\main.o: D:\ProgramFiles\Keil\ARM\ARMCC\Bin\..\include\stdbool.h
 .\ui\main.o: ..\bsp\pid.h
 .\ui\main.o: ..\component\devices\BMI088driver.h
 .\ui\main.o: ..\bsp\struct_typedef.h

@@ -26,93 +26,81 @@
 #include "nuc_interface.h"
 #include "Mode_Switch.h"
 #include "RM_Judge.h"
-/********************************** AK-60 define ***********************************/
-#define P_MIN -12.5f
-#define P_MAX 12.5f
-#define V_MIN -41.87f
-#define V_MAX 41.87f
-#define KP_MIN 0.0f
-#define KP_MAX 500.0f
-#define KD_MIN 0.0f
-#define KD_MAX 5.0f
-#define T_MIN -9.0f
-#define T_MAX 9.0f
+/************************* define **********************/
+/******************** Gimbal *****************/
+#define YAW_ID			0x205//CAN1
+#define PIT_6020_ID		0x205//CAN2
+#define FIRE_L_ID		0x203//CAN2
+#define FIRE_R_ID		0x204//CAN2
+#define TRANS_ID		0x202//CAN2
+#define Camera_ID		0x206//CAN1
+/******************** Chassis *****************/
+#define LF_ID 			0x202//CAN1
+#define RF_ID 			0x201//CAN1
+#define LB_ID 			0x203//CAN1
+#define RB_ID 			0x204//CAN1
+#if	ROBOT_ID == SUN
+	#define Supercapacitors_ID 0x100//CAN1
+#endif
+#if	ROBOT_ID == MOON
+	#define Supercapacitors_ID 0x100//CAN1
+#endif
 /********************************** global variable ****************************************/
-int can1_sendY_N=0;
-int can2_sendY_N=0;
-/*************** Gimbal ******************/
-extern s_motor_data_t YAW_motor;
-extern s_motor_data_t YAW_motor_imu;
-extern s_motor_data_t YAW_motor_encode;
-extern s_motor_data_t PIT_motor;
-extern s_motor_data_t PIT_motor_imu;
+/******************************* 裁判系统数据 ************************************/
+uint8_t 		RobotId;//机器人ID
+uint8_t			RobotLevel;//机器人等级
+uint16_t 		shot_ball_amount=0;//发射弹丸数目
+u_data_16bit 	chassis_power_buff;//缓冲能量,60J
+u_data_16bit 	chassis_power_limit;//功率限制
+u_data_16bit 	coolingheat;//拨弹盘（枪管）实时热量
+u_data_16bit 	coolingheat_limit;//拨弹盘（枪管）最大冷却值
+u_data_16bit 	friSped;//最大弹速
+u_data_32bit 	chassis_power;//实时功率
+u_data_32bit 	bullet_speed;//弹速
+uint8_t			PowerState[3] = {0,0,0};
+uint32_t 		JudgePowerStateCount = 0;
 
-extern s_motor_data_t Camera_motor;//摄像头调整使用的2006
-/**************** Shoot ******************/
-extern s_motor_data_t FIRE_L_motor;
-extern s_motor_data_t FIRE_R_motor;
-extern s_motor_data_t TRANS_motor;
-/**************** Chassis ****************/
-extern s_motor_data_t LF_motor;
-extern s_motor_data_t RF_motor;
-extern s_motor_data_t LB_motor;
-extern s_motor_data_t RB_motor;
-/***************** Judge *****************/
-extern s_rm_judge_shoot_data_t Judge_ShootData;
-
-u_data_16bit pitch_gyro_spd;
-u_data_16bit chassis_c;
-u_data_16bit chassis_v;
-u_data_16bit chassis_power_buff;
-u_data_16bit chassis_power_limit;
-u_data_16bit coolingheat;
-u_data_16bit coolingheat_limit;
-u_data_16bit gimbPitDeg;
-u_data_16bit capVol;
-u_data_16bit friSped;
-
-u_data_32bit chassis_power;
-u_data_32bit chassis_gyro_spd;
-u_data_32bit pit_gyro;
-u_data_32bit bullet_speed;
-uint8_t PowerState[3] = {0,0,0};
-uint32_t JudgePowerStateCount = 0;
-
-int16_t yawAng_to_Judge;
-
-uint8_t RobotId, RobotLevel;
-
-uint16_t shot_ball_amount=0;
-
-uint16_t SuperCapDataArray[50];
-uint8_t SuperCapDataArrayCount = 0;
 /*************************** extern declaration ***********************************/
-extern chassisMove_t	s_chassisMove;
-extern s_FPS_monitor	Fps;
-extern int16_t 			Fric_SpeedTarget;
-extern uint8_t          capExpect_txBuff[8];
-extern s_FPS_monitor    finalFps;
+extern chassisMove_t		s_chassisMove;
+extern s_FPS_monitor		Fps;
+extern int16_t 				Fric_SpeedTarget;
+extern uint8_t          	capExpect_txBuff[8];
+extern s_FPS_monitor    	finalFps;
+extern s_robo_Mode_Setting	robot_Mode;
+extern su_PC_DATA 			pcData;
+/*************** Gimbal ******************/
+extern s_motor_data_t 		YAW_motor;
+extern s_motor_data_t 		YAW_motor_imu;
+extern s_motor_data_t 		YAW_motor_encode;
+extern s_motor_data_t 		PIT_motor;
+extern s_motor_data_t 		PIT_motor_imu;
+extern s_motor_data_t 		Camera_motor;//摄像头调整使用的2006
+/**************** Shoot ******************/
+extern s_motor_data_t 		FIRE_L_motor;
+extern s_motor_data_t 		FIRE_R_motor;
+extern s_motor_data_t 		TRANS_motor;
+/**************** Chassis ****************/
+extern s_motor_data_t 		LF_motor;
+extern s_motor_data_t 		RF_motor;
+extern s_motor_data_t 		LB_motor;
+extern s_motor_data_t 		RB_motor;
+/***************** Judge *****************/
+extern s_rm_judge_shoot_data_t	Judge_ShootData;
 /****************************** Functions declaration *****************************/
 void CAN_Enable(CAN_HandleTypeDef *Target_hcan);
 
 /******************************** Private functions *******************************/
-/**
- * @brief     Enable filter
- * @param     CAN_HandleTypeDef* hcan
- * @return    none
- * @attention filter bank 0 for CAN1 and filter bank 14 for CAN2
- */
-static void CANFilter_Enable(CAN_HandleTypeDef* hcan);
 
+static void CANFilter_Enable(CAN_HandleTypeDef* hcan);
+static void UI_API1(void);
+static void UI_API2(void);
 /**********************************************************************************/
-// Some initialization function --------------------------
 
 /**
   * @brief  Init CAN1、CAN2，放到main.c里
   * @param  None
   * @retval void
   * @usage  call in main() function
-    
   */
 void MY_CAN_Init(void)
 {
@@ -260,31 +248,42 @@ void CAN_Send_bytes(CAN_HandleTypeDef *hcan, uint32_t id, uint8_t data[8])
 	HAL_CAN_AddTxMessage(hcan, &CanTxHeader, tx_message.Data, &send_mail_box);
 }
 
-extern s_robo_Mode_Setting robot_Mode;
-extern su_PC_DATA pcData;
-u_data_16bit cap_precentV;
-u_data_16bit pitAng;
 /**
- * @brief     给底盘C板发送要显示在UI上的信息
+ * @brief     给底盘C板发送要显示在UI上的信息：
+ * PIT轴电机角度、电容电压百分比、底盘模式、云台模式、发射机构模式、自瞄是否识别到
+ * YAW轴电机角度、摩擦轮电机目标转速、摩擦轮电机温度、摩擦轮电机error标志位、UI刷新标志位
  * @param     none
  * @return    None
  */
 void UI_API(void)
 {
-	static uint8_t cBoard_txBuff[8];
+	UI_API1();
+	UI_API2();
+}
+
+/**
+ * @brief     给底盘C板发送要显示在UI上的信息：PIT轴电机角度、电容电压百分比、底盘模式、云台模式、发射机构模式、自瞄是否识别到
+ * @param     none
+ * @return    None
+ */
+static void UI_API1(void)
+{
+	uint8_t cBoard_txBuff[8];
+	u_data_16bit cap_precentV;
+	u_data_16bit pitAng;
 	float capV=s_chassisMove.capVol;
 
     #if	ROBOT_ID == SUN
     cap_precentV.integer = capV * capV / ( 29.0 * 29.0) * 100;
     #endif
     #if	ROBOT_ID == MOON
-    cap_precentV.integer = capV * capV / ( 29.5 * 29.5) * 100;
+    // cap_precentV.integer = capV * capV / ( 29.5 * 29.5) * 100;
+	cap_precentV.integer = (uint16_t)capV;
     #endif
 
-    //cap_precentV.integer = (uint16_t)s_chassisMove.cap_percent;
     if(cap_precentV.integer>100) cap_precentV.integer=100;
     if(cap_precentV.integer<0) cap_precentV.integer=0;
-	pitAng.integer = PIT_motor.serial_motor_ang*100;
+	pitAng.integer = (int16_t)PIT_motor.serial_motor_ang*100;
 	cBoard_txBuff[0] = pitAng.arr2[0];//PIT轴电机角度（需除以100转换）
 	cBoard_txBuff[1] = pitAng.arr2[1];
 	cBoard_txBuff[2] = cap_precentV.arr2[0];//电容电压百分比（0-100）
@@ -294,21 +293,28 @@ void UI_API(void)
 	cBoard_txBuff[6] = robot_Mode.shootMode;//发射机构模式（0、1、2）
 	cBoard_txBuff[7] = pcData.target.isExist;//自瞄是否识别到（0/1）
 
-  CAN_Send_bytes(&hcan2, 0x300, cBoard_txBuff);
+	CAN_Send_bytes(&hcan2, 0x300, cBoard_txBuff);
 }
 
-u_data_16bit yawEncode;
-u_data_16bit fricTargetSpd;
-u_data_16bit fricTemp;
-static uint8_t cBoard_txBuff_yaw[8];
-static uint8_t firc_error_flag = 0;//摩擦轮状态为开启，并且两个电机返回转速的绝对值之和为1000以下的值时，该标志位置1
-uint8_t UI_sync_flag = 0;
-void UI_API_YAW(void)
+
+/**
+ * @brief     给底盘C板发送要显示在UI上的信息：YAW轴电机角度、摩擦轮电机目标转速、摩擦轮电机温度、摩擦轮电机error标志位、UI刷新标志位
+ * @param     none
+ * @return    None
+ */
+static void UI_API2(void)
 {
-	float f_yaw_ang = (YAW_motor.back_position/8191.0f)*360.0f;
+	uint8_t cBoard_txBuff_yaw[8];
+	uint8_t UI_sync_flag = 0;//UI刷新标志位
+	uint8_t firc_error_flag = 0;//摩擦轮状态为开启，并且两个电机返回转速的绝对值之和为1000以下的值时，该标志位置1
+	u_data_16bit yawEncode;
+	u_data_16bit fricTemp;
+	u_data_16bit fricTargetSpd;
+	float f_yaw_ang = (YAW_motor.back_position/8191.0f)*360.0f;//yaw轴刻度转角度
 	yawEncode.integer = (int16_t)(f_yaw_ang);
-	fricTargetSpd.u_integer = abs(FIRE_L_motor.target_motor_speed);
+	fricTargetSpd.u_integer = abs(FIRE_L_motor.target_motor_speed);//摩擦轮温度
 	fricTemp.u_integer = FIRE_L_motor.temperature;
+	//摩擦轮错误标志位置位
 	if(robot_Mode.shootMode==S_SWING && (abs(FIRE_L_motor.back_motor_speed)+abs(FIRE_R_motor.back_motor_speed)) < 1000)
 		firc_error_flag = 1;
 	else firc_error_flag = 0;
@@ -323,8 +329,8 @@ void UI_API_YAW(void)
 	cBoard_txBuff_yaw[3] = fricTargetSpd.arr2[1];
 	cBoard_txBuff_yaw[4] = fricTemp.arr2[0];//摩擦轮电机温度
 	cBoard_txBuff_yaw[5] = fricTemp.arr2[1];
-	cBoard_txBuff_yaw[6] = firc_error_flag;
-	cBoard_txBuff_yaw[7] = UI_sync_flag;
+	cBoard_txBuff_yaw[6] = firc_error_flag;//摩擦轮电机error标志位
+	cBoard_txBuff_yaw[7] = UI_sync_flag;//UI刷新标志位
 	CAN_Send_bytes(&hcan2, 0x301, cBoard_txBuff_yaw);
 }
 /* ----------------------CAN interruption callback function ------------------------------*/

@@ -94,7 +94,6 @@ extern s_pid_absolute_t    LF_motor_pid_stop_speed;
 extern s_pid_absolute_t    RF_motor_pid_stop_speed;
 extern s_pid_absolute_t    LB_motor_pid_stop_speed;
 extern s_pid_absolute_t    RB_motor_pid_stop_speed;
-extern u_data_16bit		   cap_precentV;
 /******************** Fire *************************/
 extern s_motor_data_t      FIRE_L_motor;
 extern s_motor_data_t      FIRE_R_motor;
@@ -118,7 +117,6 @@ extern double	           P1,I1,D1,S1, \
 				           P8,I8,D8,S8, \
 				           P9,I9,D9,S9;
 extern u_data_16bit JudgeGameState;
-extern int16_t             yawAng_to_Judge;
 extern int8_t g_gyro_flag;
 extern int8_t deafult_mode_flag;
 extern u_data_32bit bullet_speed;
@@ -169,7 +167,6 @@ void Print_task(void const * argument)
 	//printf("%s\r\n","HERO_test");
 	
 /********************************************************** Judge ************************************************************/
-	//printf("%d\r\n",yawAng_to_Judge);
 	//printf("%d\r\n",JudgeGameState.arr2[0]);
 	//printf("%d\r\n",g_gyro_flag);
 	//printf("%d\r\n",deafult_mode_flag);
@@ -278,7 +275,7 @@ void Print_task(void const * argument)
 		#endif
 		// printf("%d\r\n",s_chassisMove.W);
 		//printf("power_buffer=%d\r\ncapVol=%f\r\n",s_chassisMove.chassis_power_buffer, s_chassisMove.capVol);
-		printf("%lf,%d\r\n",s_chassisMove.capVol,cap_precentV.integer);
+		// printf("%lf,%d\r\n",s_chassisMove.capVol,cap_precentV.integer);
 		#if CHASSIS_MOTOR_CURRENT == 1
 			printf("LF=%d,RF=%d,LB=%d,RB=%d\r\n LFO=%d,RFO=%d,LBO=%d,RBO=%d\r\n",	LF_motor.back_current, \
 																					RF_motor.back_current, \

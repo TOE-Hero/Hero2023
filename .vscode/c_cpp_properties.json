@@ -35,6 +35,7 @@
                 "ARM_MATH_MATRIX_CHECK",
                 "ARM_MATH_ROUNDING",
                 "__VFP_FP__"
+                
             ],
             "compilerPath": "arm-none-eabi-gcc.exe",
             "cStandard": "c11",

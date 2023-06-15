@@ -185,8 +185,6 @@ C_INCLUDES =  \
 -IMiddlewares/ST/STM32_USB_Device_Library/Class/CDC/Inc \
 -IDrivers/CMSIS/Device/ST/STM32F4xx/Include \
 -IDrivers/CMSIS/Include \
--IMDK-ARM/RTE/_gimbal_task \
--IMDK-ARM/RTE/_Hero2022 \
 -IThread \
 -Ibsp \
 -IModule \
@@ -244,7 +242,7 @@ $(BUILD_DIR)/$(BUILD_TEMP_DIR)/%.o: %.c  | $(BUILD_DIR)
 $(BUILD_DIR)/$(BUILD_TEMP_DIR)/%.o: %.s  | $(BUILD_DIR)
 	$(AS) -c $(CFLAGS) $< -o $@
 
-$(BUILD_DIR)/$(TARGET).elf: $(OBJECTS) 
+$(BUILD_DIR)/$(TARGET).elf: $(OBJECTS) | $(BUILD_DIR)
 	$(CC) $(OBJECTS) $(LDFLAGS) -o $@
 	$(SZ) $@
 
@@ -261,6 +259,8 @@ $(BUILD_DIR):
 #######################################
 # clean up
 #######################################
+clean:
+	-rm -fR $(BUILD_DIR)
 clean-bash:
 	rm -rf  $(BUILD_DIR)
 clean-cmd:

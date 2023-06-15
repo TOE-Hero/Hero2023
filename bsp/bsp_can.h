@@ -7,14 +7,6 @@
 #include "pid.h"
 #include "Mode_Switch.h"
 /******************** Gimbal *****************/
-#define YAW_ID			0x205//CAN1
-#define PIT_ID			0	 //CAN2
-#define PIT_6020_ID		0x205//CAN2
-#define FIRE_L_ID		0x203//CAN2
-#define FIRE_R_ID		0x204//CAN2
-#define TRANS_ID		0x202//CAN2
-#define Camera_ID		0x206//CAN1
-
 extern s_motor_data_t YAW_motor;
 extern s_motor_data_t YAW_motor_imu;
 extern s_motor_data_t YAW_motor_top;
@@ -23,16 +15,6 @@ extern s_motor_data_t FIRE_L_motor;
 extern s_motor_data_t FIRE_R_motor;
 extern s_motor_data_t TRANS_motor;
 /******************** Chassis *****************/
-#define LF_ID 0x202//CAN1
-#define RF_ID 0x201//CAN1
-#define LB_ID 0x203//CAN1
-#define RB_ID 0x204//CAN1
-#if	ROBOT_ID == SUN
-	#define Supercapacitors_ID 0x100//CAN1
-#endif
-#if	ROBOT_ID == MOON
-	#define Supercapacitors_ID 0x100//CAN1
-#endif
 extern s_motor_data_t LF_motor;
 extern s_motor_data_t RF_motor;
 extern s_motor_data_t LB_motor;
@@ -68,7 +50,6 @@ void CAN_Enable(CAN_HandleTypeDef *Target_hcan);
 uint8_t CANTx_SendCurrent(CAN_HandleTypeDef *Target_hcan, uint32_t id, int16_t current1, int16_t current2, int16_t current3, int16_t current4);
 void CAN_Send_bytes(CAN_HandleTypeDef *hcan,uint32_t id,uint8_t data[8]);
 void UI_API(void);
-void UI_API_YAW(void);
 
 #endif  /* BSP_CAN_H */
 

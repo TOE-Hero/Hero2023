@@ -8,78 +8,93 @@ extern uint8_t PowerReciveNewDataSignal;
 extern int16_t datatype;
 extern uint8_t ToJudgeMask1;
 extern UI_RX uiRx;
+extern uint8_t fric_change_mode_flag;
 uint8_t candata[8];
 wl4data  data4bytes;
 wl2data  data2bytes;
 
+int aaaa=0;
 void Start_UI_Task(void)
 {
 	static uint8_t blinkCount = 0;
 	static uint8_t isInit = 0;
+	static uint16_t fric_last_mode;
+	static uint8_t fric_mode_count=5;
 	
-	if(uiRx.UI_sync_flag == 1 || isInit < 80)
+	if(uiRx.UI_sync_flag == 1 || isInit < 30)
 	{
 		osDelay(10);
 		Crosshair(1);//准星  //UpData0
-		osDelay(10);
-		Boarder();//防撞条和下面的吊射线
-		osDelay(10);
-		Crosshair1(1);
-		osDelay(20);
+		osDelay(15);
+		Crosshair1();//下面的吊射线
+		osDelay(15);
+		Collision_Border();
+		osDelay(15);
 		DrawCapVolRectangle(uiRx.realPowData,1 , uiRx.realYawData);
-		osDelay(10);
+		osDelay(20);
 		FloatDataShow(uiRx.realPitData, uiRx.realPowData, uiRx.realYawData,uiRx.realfricSpdData,uiRx.realfricTempData,1, 1);
-		osDelay(10);
-		CharacterCHASSIS_MODE(290, 840, 1);  //UpData4
-		osDelay(10);
-		CharacterCHASSISMODstateShow(350, 800, 1);  //csadd: 
-		osDelay(10);
-		CharacterGIMBAL_MODE(290, 750, 1);  //csadd: 云台模式  //UpData8
-		osDelay(10);
-		CharacterGIMBALstateShow(350, 710, 1);  //UpData9
-		osDelay(10);
+		//osDelay(10);
+		//CharacterCHASSIS_MODE(290, 840, 1);  //UpData4
+		//osDelay(20);
+		//CharacterCHASSISMODstateShow(350, 800, 1);  //csadd: 
+		//osDelay(10);
+		//CharacterGIMBAL_MODE(290, 750, 1);  //csadd: 云台模式  //UpData8
+		//osDelay(10);
+		//CharacterGIMBALstateShow(350, 710, 1);  //UpData9
+		osDelay(20);
+		uint16_t gimbal_x = 860;
+		CharacterGimbal_NULL_Show(gimbal_x, 880, 1);
+		osDelay(15);
+		CharacterGimbal_MNAUALShow(gimbal_x-100, 880, 1);
+		osDelay(15);
+		CharacterGimbal_HOIST_Show(gimbal_x-200, 880, 1);
+		osDelay(15);
+		CharacterGimbal_FULL_VISION_Show(gimbal_x-350, 880, 1);
+		osDelay(15);
+		CharacterGimbal_HALF_VISION_Show(gimbal_x-500, 880, 1);
+		osDelay(15);
+		uint16_t chassis_x = 1000;
+		Character_CHASSIS_NULL_Show(chassis_x, 880, 1);
+		osDelay(15);
+		Character_CHASSIS_FOLLOW_Show(chassis_x+100, 880, 1);
+		osDelay(15);
+		Character_CHASSIS_TOP_Show(chassis_x+220, 880, 1);
+		osDelay(15);
+		Character_CHASSIS_STOP_Show(chassis_x+300, 880, 1);
+		osDelay(15);
+		Character_CHASSIS_APART_Show(chassis_x+390, 880, 1);
+		osDelay(15);
+		CharacterFricSPEEDShow(1560, 680, 1);
+		osDelay(15);
+		CharacterFricTEMPShow(1560, 580, 1);
+		osDelay(15);
 		CharacterFRIC_MODEShow(290, 660, 1); //弹仓状态  //UpData2
-		osDelay(10);
+		osDelay(20);
 		CharacteFRIC_stateShow(350, 620, 1);  //UpData3
-		osDelay(10);
+		osDelay(20);
 		CharacterPitchShow(1100, 600, 1); // x坐标，y坐标，操作类型  //UpData1
+		osDelay(20);
+		Draw_CIRCLE_mode(1);
 		++isInit;
 	}
 	else
 	{
-		Crosshair(2);
-		osDelay(10);
 		
 		FloatDataShow(uiRx.realPitData, uiRx.realPowData, uiRx.realYawData,uiRx.realfricSpdData,uiRx.realfricTempData,2, 2);
 		osDelay(20);
 		
 		DrawCapVolRectangle(uiRx.realPowData,2 , uiRx.realYawData);
-		osDelay(10);
-		
-		CharacterCHASSISMODstateShow(350, 800, 2);
-		osDelay(10);
-		
-		CharacterGIMBALstateShow(350, 710, 2);
-		osDelay(10);
-		
-		blinkCount++;//闪烁计数
-		if(uiRx.fricMode != 2)
+		osDelay(20);
+		if(fric_change_mode_flag || uiRx.firc_error)
 		{
-			if (blinkCount%3)
-			{
-				CharacteFRIC_stateShow(350, 620, 2);
-			}
-			else
-			{
-				CharacteFRIC_stateShow(0, 0 , 2);
-			}
-		}
-		else
-		{
+			osDelay(15);
 			CharacteFRIC_stateShow(350, 620, 2);
+			osDelay(15);
 		}
-		osDelay(10);
+		Draw_CIRCLE_mode(2);
+		osDelay(20);
 	}
+	fric_last_mode = uiRx.fricMode;
 }
 
 void Start_RM_Task(void){

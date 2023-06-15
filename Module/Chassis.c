@@ -31,7 +31,8 @@
 	#define YAW_MID_VAL             1253//分区赛英雄YAW轴中值
 #endif
 
-#define RAMP_MAX_VAL                7000//键盘按下后速度最大值(高速)
+#define RAMP_MAX_VAL                8000//键盘按下后速度最大值(高速)
+#define RAMP_MID_VAL                5000//键盘按下后速度最大值(中速)
 #define RAMP_LOW_VAL                3000//键盘按下后速度最大值（低速）
 #define CHASSIS_SPEED_MAX		    10000//按下shift底盘速度
 #define THETA_OFFSET			    360.0f/469309.7f//电机与中值差值除以8191，乘360°（转为度）再乘pi/180（转为弧度）
@@ -57,9 +58,8 @@ static int     Target_Vy=0;
 static float   opposite_ang=0;
 /************************** extern declaration ***********************************/
 extern s_robo_Mode_Setting robot_Mode;
-extern uint8_t             RobotId, RobotLevel;
-extern u_data_16bit        chassis_c;
-extern u_data_16bit        chassis_v;
+extern uint8_t             RobotId;
+extern uint8_t             RobotLevel;
 extern u_data_32bit        chassis_power;
 extern s_FPS_monitor       finalFps;
 extern s_pid_absolute_t    LF_motor_pid_stop_pos;
@@ -70,7 +70,6 @@ extern s_pid_absolute_t    LF_motor_pid_stop_speed;
 extern s_pid_absolute_t    RF_motor_pid_stop_speed;
 extern s_pid_absolute_t    LB_motor_pid_stop_speed;
 extern s_pid_absolute_t    RB_motor_pid_stop_speed;
-extern int16_t             yawAng_to_Judge;
 /************************** Function declaration *********************************/
 
 /**
@@ -140,6 +139,8 @@ static void chassis_power_control(chassisMove_t *s_chassisMove, int16_t *motor_)
 		static uint8_t		SuperCap_Vol_Threshold = 18;
 		//超级电容恢复正常功率电压
 		static uint8_t		SuperCap_Vol_Wide = 22;
+
+		//根据裁判系统反馈的功率限制，判断电容的电压阈值
         if(s_chassisMove->chassis_power_limit == 50)
         {
             SuperCAP_Low_Vol_Multiple = 30;
@@ -181,34 +182,47 @@ static void chassis_power_control(chassisMove_t *s_chassisMove, int16_t *motor_)
             SuperCap_Vol_Threshold = 21;
             SuperCap_Vol_Wide = 25;
         }
-
-        if(s_chassisMove->capVol < SuperCap_Vol_Threshold)
-        {
-            s_chassisMove->cur_sum_limit = SuperCAP_Low_Vol_Multiple * s_chassisMove->capVol * s_chassisMove->capVol;//小于阈值的话限制最大电流
-            SuperCAP_Low_Vol_Flag = 1;
-        }
-        else if (SuperCAP_Low_Vol_Flag == 0)
-        {
-            //if(!PRESS_V) s_chassisMove->cur_sum_limit = 30000;//不按V键走的快
-			if(!PRESS_V) s_chassisMove->cur_sum_limit = 26000;//不按V键走的快
-            else s_chassisMove->cur_sum_limit = 16000;//按住V键走的慢点
-        }
-        if(s_chassisMove->capVol > SuperCap_Vol_Wide)
-        {
-            SuperCAP_Low_Vol_Flag = 0;
-        }
+		//电容电压置位标志位
+        // if(s_chassisMove->capVol < SuperCap_Vol_Threshold)
+        // {
+        //     SuperCAP_Low_Vol_Flag = 1;
+        // }
+		// else if (s_chassisMove->capVol > SuperCap_Vol_Wide)
+		// {
+		// 	SuperCAP_Low_Vol_Flag = 0;
+		// }
+		// //根据标志位限制最大电流
+		// if (SuperCAP_Low_Vol_Flag == 0)
+        // {
+        //     //if(!PRESS_V) s_chassisMove->cur_sum_limit = 30000;//不按V键走的快
+		// 	if(!PRESS_V) s_chassisMove->cur_sum_limit = 30000;//不按V键走的快
+        //     else s_chassisMove->cur_sum_limit = 16000;//按住V键走的慢点
+        // }
+		// else
+		// {
+			float capVol_max = 29.0f;//电容电压最大值
+			float capVol_limit = 20.0f;//电容电压你想要限制的值
+			float current_max = 20000.0f;//电流输出总和->你想限制的最大值
+			if(PRESS_SHIFT)//如果按下shift
+			{
+				capVol_limit = 15.0f;//修改电容电压限幅为更低
+				current_max = 30000.0f;//修改电流输出为更高
+			}
+			float capVol_scal = fabs((s_chassisMove->capVol-capVol_limit)/(capVol_max - capVol_limit));
+			s_chassisMove->cur_sum_limit = current_max * capVol_scal * capVol_scal;
+		// }
 
     }
-    else//否则判断电容控制板断联，以最低功率运行
+    else//如果电容控制板帧率不正常，认为电容控制板断联，以最低功率运行
     {
         s_chassisMove->cur_sum_limit = 4 * 3000;
         // s_chassisMove->cur_sum_limit = 0;
     }
 
 	//如果缓冲能量小于一定值,限制最大电流输出,每次运行该线程都会减小
-	if(s_chassisMove->chassis_power_buffer < 5)
+	if(s_chassisMove->chassis_power_buffer < 10)
 	{
-	s_chassisMove->cur_sum_limit -= 2000;
+		s_chassisMove->cur_sum_limit -= 2000;
 	}
 
     s_chassisMove->cur_sum = fabs(motor_[0])+fabs(motor_[1])+fabs(motor_[2])+fabs(motor_[3]);//计算总电流
@@ -245,7 +259,7 @@ static void chassis_power_control(chassisMove_t *s_chassisMove, int16_t *motor_)
         capExpect_txBuff[1] = (uint8_t) basic_power;
         //memset(&capExpect_txBuff[2],0, 6*sizeof(uint8_t));
     }
-    if(s_chassisMove->cur_sum > s_chassisMove->cur_sum_limit)//如果目标电流大于30000
+    if(s_chassisMove->cur_sum > s_chassisMove->cur_sum_limit)//如果目标电流大于限制值
     {
         //为什么限定值是四个电机最大电流：因为如果限定的是单个电机最大电流，那么就有可能在转弯时转不过来，让每个电机电流成比例降低不会太影响运行流畅性
         float motor_Scale = (float)s_chassisMove->cur_sum_limit / (float)s_chassisMove->cur_sum;//最大电流限幅除以当前总电流算出一个比例值
@@ -298,7 +312,6 @@ void Chassis_Init(void)
   */
 void Chassis_Move(void)
 {
-	// yawAng_to_Judge = (int16_t)(YAW_motor.back_position);
 	//目标前进与左右速度，设定此中间值的作用是方便后面解算，看起来也更直观，也方便确定正反向
 	#if	ROBOT_ID == SUN
 	Target_Vx=(rc_ctrl.rc.ch[3]*600)/66;
@@ -375,13 +388,22 @@ void Chassis_Move(void)
 			{
 				s_chassisMove.W = ChasFollow_yawrot(YAW_MID_VAL, &YAW_motor_pid_pos, &YAW_motor_pid_speed);//*ramp_cal(&ramp_cFllow);
 			}
-			//此处用斜坡是为了在从其他模式转回到跟随模式时（比如从陀螺转到跟随）防止因为速度过大而跑过了，使用的是时间较长的斜坡
+			//此处用斜坡是为了在从其他模式转回到跟随模式时（比如从陀螺转到跟随）防止因为速度过大而转过了，使用的是时间较长的斜坡
 			LF_motor.target_motor_speed=( s_chassisMove.Vx+s_chassisMove.Vy+s_chassisMove.W)*ramp_cal(&ramp_cFllow);
 			RF_motor.target_motor_speed=(-s_chassisMove.Vx+s_chassisMove.Vy+s_chassisMove.W)*ramp_cal(&ramp_cFllow);
 			LB_motor.target_motor_speed=( s_chassisMove.Vx-s_chassisMove.Vy+s_chassisMove.W)*ramp_cal(&ramp_cFllow);
 			RB_motor.target_motor_speed=(-s_chassisMove.Vx-s_chassisMove.Vy+s_chassisMove.W)*ramp_cal(&ramp_cFllow);
-			int16_t W_ = 2.5 * s_chassisMove.W;
-			if(abs(W_)>5000) W_ = 5000 * W_ / abs(W_);
+			/***转向环分离***/
+			/*转向环分离原因：
+			当四个轮子的target_motor_speed都大于pid所限制的最大值时，由于pid输出最大值的限制，导致四个轮子的输出电流都是pid限制的最大值，
+			这就导致在高速运行时车无法转向(转向环失效)，这就需要在输出电流处增加一个转向电流，令最大电流达到最大时，能够令要转向的方向
+			内侧减电流，外侧增加电流，同时四个轮子的电流加和不变。
+			PS:正常是需要像一下这样写的：
+			out_current=pid1(&pid_speed_struct, target_speed, back_speed)+pid2(&pid_speed_struct, target_speed, back_speed)
+			pid1 用来计算XY速度，pid2 用来计算W，每个pid最大值分离，我是偷懒了，但是效果是一样的。
+			*/
+			int16_t W_ = 2.5 * s_chassisMove.W;//转向环，打印一下s_chassisMove.W值看最大值，然后调倍数
+			if(abs(W_)>5000) W_ = 5000 * W_ / abs(W_);//如果转向环值大于(+-)5000，则将转向环限制在(+-)5000，5000这个值也是调出来的
 			LF_motor.out_current = motor_single_loop_PID(&LF_motor_pid_speed, LF_motor.target_motor_speed, LF_motor.back_motor_speed)+W_;
 			RF_motor.out_current = motor_single_loop_PID(&RF_motor_pid_speed, RF_motor.target_motor_speed, RF_motor.back_motor_speed)+W_;
 			LB_motor.out_current = motor_single_loop_PID(&LB_motor_pid_speed, LB_motor.target_motor_speed, LB_motor.back_motor_speed)+W_;
@@ -453,7 +475,7 @@ void Chassis_Move(void)
 			break;
 		 }
 	}
-	//这里赋值成数组是因为懒了，刚开始学习的时候用的结构体，但是后来太繁杂，后面的控制功率函数如果要参数化的话要加太多参数了，所以在这里赋值为数组
+//这里赋值成数组是因为懒了，刚开始学习的时候用的结构体，但是后来太繁杂，后面的控制功率函数如果要参数化的话要加太多参数了，所以在这里赋值为数组
 	motor[0]=RF_motor.out_current;
 	motor[1]=LF_motor.out_current;
 	motor[2]=LB_motor.out_current;
@@ -473,67 +495,78 @@ void Chassis_Move(void)
   */
 static void key_Control_chassic(void)
 {
-	if(PRESS_SHIFT)//按下Shift后电机满速，便于飞坡
+	/*
+	没有按下V+没有按下SHIFT = 中速
+	没有按下V+按下SHIFT = 高速
+	按下V+没有按下SHIFT = 低速
+	按下V+按下SHIFT = 低速
+	*/
+	//前进
+	if (PRESS_FRONT)
 	{
-		if(PRESS_FRONT) Target_Vx =  CHASSIS_SPEED_MAX;
-		if(PRESS_BACK)  Target_Vx = -CHASSIS_SPEED_MAX;
-		if(PRESS_LEFT)  Target_Vy = -CHASSIS_SPEED_MAX;
-		if(PRESS_RIGHT) Target_Vy =  CHASSIS_SPEED_MAX;
+		if(!PRESS_V && PRESS_SHIFT) Target_Vx = RAMP_MAX_VAL * ramp_cal(&ramp_w);
+		else if(!PRESS_V && !PRESS_SHIFT) Target_Vx = RAMP_MID_VAL*ramp_cal(&ramp_w);
+		else if(PRESS_V && !PRESS_SHIFT) Target_Vx = RAMP_LOW_VAL*ramp_cal(&ramp_w);
+		else Target_Vx = RAMP_LOW_VAL*ramp_cal(&ramp_w);
+
+		ramp_w.interval = 0;//清空W按键防抖值
+		ramp_s.count = RAMP_INIT;//重置S按键的斜坡函数计数值
 	}
 	else
 	{
-		if (PRESS_FRONT)
-		{
-			if(!PRESS_V) Target_Vx = RAMP_MAX_VAL * ramp_cal(&ramp_w);
-			else Target_Vx = RAMP_LOW_VAL*ramp_cal(&ramp_w);
-
-			ramp_w.interval = 0;
-			ramp_s.count = RAMP_INIT;
-		}
-		else
-		{
-			ramp_w.interval++;
-			if(ramp_w.interval>3) ramp_w.count = RAMP_INIT;
-		}
-
-		if (PRESS_BACK)
-		{
-			if(!PRESS_V)  Target_Vx = -RAMP_MAX_VAL * ramp_cal(&ramp_s);
-			else Target_Vx = -RAMP_LOW_VAL*ramp_cal(&ramp_s);
-			ramp_s.interval = 0;
-			ramp_w.count = RAMP_INIT;
-		}
-		else
-		{
-			ramp_s.interval++;
-			if(ramp_s.interval>3) ramp_s.count = RAMP_INIT;
-		}
-
-		if (PRESS_LEFT)
-		{
-				Target_Vy = -RAMP_MAX_VAL * ramp_cal(&ramp_a);
-				ramp_a.interval = 0;
-				ramp_d.count = RAMP_INIT;
-		}
-		else
-		{
-			ramp_a.interval++;
-			if(ramp_a.interval>3) ramp_a.count = RAMP_INIT;
-		}
-
-		if (PRESS_RIGHT)
-		{
-				Target_Vy = RAMP_MAX_VAL * ramp_cal(&ramp_d);
-				ramp_d.interval = 0;
-				ramp_a.count = RAMP_INIT;
-		}
-		else
-		{
-			ramp_d.interval++;
-			if(ramp_d.interval>3) ramp_d.count = RAMP_INIT;
-		}
+		ramp_w.interval++;//计算松开W的时间，chassis线程5ms执行一次，也就是检测15ms没有按下W，重置斜坡函数计数值
+		if(ramp_w.interval>3) ramp_w.count = RAMP_INIT;//松开W，重置斜坡函数计数值
 	}
+	//后退
+	if (PRESS_BACK)
+	{
+		if(!PRESS_V && PRESS_SHIFT) Target_Vx = -RAMP_MAX_VAL * ramp_cal(&ramp_s);
+		else if(!PRESS_V && !PRESS_SHIFT) Target_Vx = -RAMP_MID_VAL*ramp_cal(&ramp_s);
+		else if(PRESS_V && !PRESS_SHIFT) Target_Vx = -RAMP_LOW_VAL*ramp_cal(&ramp_s);
+		else Target_Vx = -RAMP_LOW_VAL*ramp_cal(&ramp_s);
 
+		ramp_s.interval = 0;
+		ramp_w.count = RAMP_INIT;
+	}
+	else
+	{
+		ramp_s.interval++;
+		if(ramp_s.interval>3) ramp_s.count = RAMP_INIT;//重置斜坡函数计数值
+	}
+	//向左
+	if (PRESS_LEFT)
+	{
+		if(!PRESS_V && PRESS_SHIFT) Target_Vy = -RAMP_MAX_VAL * ramp_cal(&ramp_a);
+		else if(!PRESS_V && !PRESS_SHIFT) Target_Vy = -RAMP_MID_VAL*ramp_cal(&ramp_a);
+		else if(PRESS_V && !PRESS_SHIFT) Target_Vy = -RAMP_LOW_VAL*ramp_cal(&ramp_a);
+		else Target_Vy = -RAMP_LOW_VAL*ramp_cal(&ramp_a);
+
+		// Target_Vy = -RAMP_MID_VAL * ramp_cal(&ramp_a);
+		ramp_a.interval = 0;
+		ramp_d.count = RAMP_INIT;
+	}
+	else
+	{
+		ramp_a.interval++;
+		if(ramp_a.interval>3) ramp_a.count = RAMP_INIT;//重置斜坡函数计数值
+	}
+	//向右
+	if (PRESS_RIGHT)
+	{
+		if(!PRESS_V && PRESS_SHIFT) Target_Vy = RAMP_MAX_VAL * ramp_cal(&ramp_d);
+		else if(!PRESS_V && !PRESS_SHIFT) Target_Vy = RAMP_MID_VAL*ramp_cal(&ramp_d);
+		else if(PRESS_V && !PRESS_SHIFT) Target_Vy = RAMP_LOW_VAL*ramp_cal(&ramp_d);
+		else Target_Vy = RAMP_LOW_VAL*ramp_cal(&ramp_d);
+
+		// Target_Vy = RAMP_MID_VAL * ramp_cal(&ramp_d);
+		ramp_d.interval = 0;
+		ramp_a.count = RAMP_INIT;
+	}
+	else
+	{
+		ramp_d.interval++;//计算松开D的时间
+		if(ramp_d.interval>3) ramp_d.count = RAMP_INIT;//重置斜坡函数计数值
+	}
 
 }
 

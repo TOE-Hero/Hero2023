@@ -103,7 +103,7 @@ void CANFilter_Enable(CAN_HandleTypeDef *Target_hcan)
   */
 
 /****** Callback Function used in this files ******/
-
+uint8_t fric_change_mode_flag=0;
 /**
   * @brief  从 FIFO0 发生的 CAN 接收中断函数
   * @param  <-- Target_hcan -->
@@ -111,8 +111,10 @@ void CANFilter_Enable(CAN_HandleTypeDef *Target_hcan)
   * @retval void
   * @usage
   */
+ uint8_t last_fric_mode;
 void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *Target_hcan)
 {
+	 static uint16_t fric_mode_count=400;
     //printf("CAN Callbacks successfully.\r\n");
   //接收数据存储区
 	s_CAN_Message can1_rx_message,can2_rx_message;
@@ -135,10 +137,21 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *Target_hcan)
 				uiRx.chasMode = can2_rx_message.Data[4];//底盘模式
 				uiRx.gimbalMode = can2_rx_message.Data[5];//云台模式
 				uiRx.fricMode = can2_rx_message.Data[6];//摩擦轮状态
+				if(last_fric_mode!=uiRx.fricMode)	fric_change_mode_flag=1;
+				if(fric_change_mode_flag) 
+				{
+					--fric_mode_count;
+				}
+				if(fric_mode_count==0)
+				{
+					fric_change_mode_flag=0;
+					fric_mode_count=600;
+				}
 				uiRx.visMode = can2_rx_message.Data[7];//自瞄模式
 
 				uiRx.realPitData = (int32_t)uiRx.pitch.data;
 				uiRx.realPowData = (int32_t)uiRx.power.data;
+				last_fric_mode = uiRx.fricMode;
 				break;
 			}
 			case 0x301:

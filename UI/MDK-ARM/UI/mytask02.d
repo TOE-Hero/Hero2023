@@ -1,8 +1,8 @@
 .\ui\mytask02.o: ..\TASK\myTask02.c
 .\ui\mytask02.o: ..\TASK\myTask02.h
 .\ui\mytask02.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/FreeRTOS.h
-.\ui\mytask02.o: D:\Program Files\Keil_v5\ARM\ARM_Compiler_5.06u7\Bin\..\include\stddef.h
-.\ui\mytask02.o: D:\Program Files\Keil_v5\ARM\ARM_Compiler_5.06u7\Bin\..\include\stdint.h
+.\ui\mytask02.o: D:\ProgramFiles\Keil\ARM\ARMCC\Bin\..\include\stddef.h
+.\ui\mytask02.o: D:\ProgramFiles\Keil\ARM\ARMCC\Bin\..\include\stdint.h
 .\ui\mytask02.o: ../Inc/FreeRTOSConfig.h
 .\ui\mytask02.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/projdefs.h
 .\ui\mytask02.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/portable.h
@@ -50,11 +50,11 @@
 .\ui\mytask02.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_tim_ex.h
 .\ui\mytask02.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_uart.h
 .\ui\mytask02.o: ..\judg\CRC.h
-.\ui\mytask02.o: D:\Program Files\Keil_v5\ARM\ARM_Compiler_5.06u7\Bin\..\include\string.h
+.\ui\mytask02.o: D:\ProgramFiles\Keil\ARM\ARMCC\Bin\..\include\string.h
 .\ui\mytask02.o: ..\bsp\bsp_usart.h
 .\ui\mytask02.o: ..\bsp\bsp_can.h
-.\ui\mytask02.o: D:\Program Files\Keil_v5\ARM\ARM_Compiler_5.06u7\Bin\..\include\stdbool.h
+.\ui\mytask02.o: D:\ProgramFiles\Keil\ARM\ARMCC\Bin\..\include\stdbool.h
 .\ui\mytask02.o: ../Inc/can.h
 .\ui\mytask02.o: ../Inc/main.h
 .\ui\mytask02.o: ..\bsp\pid.h
-.\ui\mytask02.o: D:\Program Files\Keil_v5\ARM\ARM_Compiler_5.06u7\Bin\..\include\stdio.h
+.\ui\mytask02.o: D:\ProgramFiles\Keil\ARM\ARMCC\Bin\..\include\stdio.h

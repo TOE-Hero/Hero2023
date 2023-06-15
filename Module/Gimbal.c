@@ -139,6 +139,7 @@ extern s_FPS_monitor		finalFps;//最终帧率计算值
  */
 void Vedio_Transmission_Positon_Init(void)
 {
+    #if ROBOT_ID == SUN
     uint16_t count_ = 500;
     Camera_motor.out_current = INIT_CURRENT_2006;
     while (--count_)
@@ -147,6 +148,7 @@ void Vedio_Transmission_Positon_Init(void)
         CANTx_SendCurrent(&hcan1,0x1FF, 0, Camera_motor.out_current, 0, 0 );
     }
     Vedio_transmission_init_flag = 1;//置位标志位为1
+    #endif
 }
 
 
@@ -343,6 +345,7 @@ void Gimbal_Move()
     {
     case G_NULL://发送电流为0
     {
+        pcData.target.isExist = 0x00;//在非自瞄模式，清除识别到目标标志位
         YAW_motor_encode.target_pos       = YAW_motor.serial_position;
         YAW_motor_encode.target_motor_ang = YAW_motor.serial_motor_ang;//上电时的编码器值为ENCODE模式下的目标值
         YAW_motor_imu.target_ang_imu	  = IMU_All_Value.yaw.yawAng;//上电时的角度为FLLOW模式下的目标值
@@ -369,6 +372,7 @@ void Gimbal_Move()
         pid_abs_evaluation(&YAW_motor_pid_pos_imu, P3, I3, D3, 0, S3);
         pid_abs_evaluation(&YAW_motor_pid_speed_imu, P4, I4, D4, 20000, 28000);
 #endif
+        pcData.target.isExist = 0x00;//在非自瞄模式，清除识别到目标标志位
         /********************** PIT_motor_IMU************************/
         // 用遥控器值作为pit目标值，以作pid运算（右手云台）
         RC_accumulate_ch_1_gyro  += (RC_Y - MOUSE_Y)*0.01;
@@ -406,6 +410,7 @@ void Gimbal_Move()
         pid_abs_evaluation(&YAW_motor_pid_pos_imu, P3, I3, D3, 0, S3);
         pid_abs_evaluation(&YAW_motor_pid_speed_imu, P4, I4, D4, S4, 28000);
 #endif
+        pcData.target.isExist = 0x00;//在非自瞄模式，清除识别到目标标志位
         /********************** PIT_motor*************************/
 #if ROBOT_ID == SUN
         RC_accumulate_ch_1  += RC_Y - MOUSE_Y;
@@ -456,6 +461,7 @@ void Gimbal_Move()
         pid_abs_evaluation(&YAW_motor_pid_pos_encode, P3, 0, 0, 0, S3);
         pid_abs_evaluation(&YAW_motor_pid_speed_encode, P4, I4, 0, 3000, 28000);
 #endif
+        pcData.target.isExist = 0x00;//在非自瞄模式，清除识别到目标标志位
         /**************************** key_crl ******************************/
         static uint8_t keyLock_W,keyLock_A,keyLock_S,keyLock_D = 0;//按键标志位锁，置1后要清零
         //在吊射模式下，wasd用作控制云台，按住shift让云台PIT轴转的更快，mutiple是倍数的意思

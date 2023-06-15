@@ -3,44 +3,45 @@
 #include <cmsis_os.h>
 #include <main.h>
 #include <math.h>
+#include "math.h"
 #include "bsp_can.h"
-#include "STMGood.h"
 #include "bsp_usart.h"
 #include "motor.h"
 #include "bsp_RC.h"
-#include "math.h"
 #include "pid.h"
 #include "INS_task.h"
 #include "Chassis.h"
-#include "Mode_Switch.h"
 /*********************** define ************************/
 /*******************哪台英雄****************************/
 #define	MOON	0x00
 #define SUN		0x01
 //设定机器人ID，用来选择哪辆车
-#define	ROBOT_ID	SUN
-//#define	ROBOT_ID	MOON
+// #define	ROBOT_ID	SUN
+#define	ROBOT_ID	MOON
 /****************PIT轴是哪个电机************************/
 #define GM6020	1
 //设定PIT轴电机
 #define PIT_MOTOR	GM6020
 /**************机器人各模块模式枚举类型*****************/
+
+//每个枚举变量赋值不一样的值是为了防止模式赋值错误，比如防止云台模式可以赋值C_NULL这种情况发生
+
 //云台模式枚举类型
 typedef enum{
-	G_NULL	      =0,//云台摩擦轮发送电流值0
-	G_HALF_GYRO   =1,//陀螺仪控制YAW轴
-	G_GYRO        =2,//陀螺仪控制YAW轴、PIT轴
-	G_ENCODE      =3,//电机编码器控制云台
-	G_FULL_VISION =4,//全自动瞄准
-	G_HALF_VISION =5,//半自动瞄准
+	G_NULL	      = 0,//云台发送电流值0
+	G_HALF_GYRO   = 1,//陀螺仪控制YAW轴
+	G_GYRO        = 2,//陀螺仪控制YAW轴、PIT轴
+	G_ENCODE      = 3,//电机编码器控制云台
+	G_FULL_VISION = 4,//全自动瞄准
+	G_HALF_VISION = 5,//半自动瞄准
 }e_gimbalMode;
 //底盘模式枚举类型
 typedef enum{
-	C_NULL	      = 6,//底盘摩擦轮发送电流值0
-	C_APART       = 7,//地盘分离
-	C_FOLLOW      = 8,//地盘跟随
-	C_TOP         = 9,//陀螺移动
-	C_STOP        = 10,//制动
+	C_NULL	      = 6,//底盘发送电流值0
+	C_APART       = 7,//底盘分离
+	C_FOLLOW      = 8,//底盘跟随
+	C_TOP         = 9,//底盘陀螺移动
+	C_STOP        = 10,//底盘制动
 }e_chassisMode;
 //摩擦轮模式枚举类型
 typedef enum{
@@ -88,8 +89,6 @@ extern s_robo_Mode_Setting		robot_Mode;//机器人模式结构体
 void ModeInit(void);//模式初始化函数，初始化为发送0电流模式
 
 void ModeSwitch(void);//模式控制函数
-
-void SetMode(s_robo_Mode_Setting* robot_mode, e_gimbalMode gimbalMode, e_chassisMode chassisMode, e_shootMode shootMode, e_transMode transMode);
 
 #endif
 

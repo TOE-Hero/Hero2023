@@ -319,23 +319,38 @@ void CheckID(void);
 void RobotSendMsgToClient(float data1,float data2,float data3,uint8_t mask);
 void JudgeData(uint8_t data);
 void Crosshair(uint8_t operate_type);
-void Boarder(void);
-void Character_DO_YOU_SPIN(uint32_t start_x, uint32_t start_y, uint8_t operate_tpye);
+void Crosshair1(void);
+void Collision_Border(void);
+
 void CharacterPitchShow(uint32_t start_x,uint32_t start_y,uint8_t operate_tpye);
 void CharacterFRIC_MODEShow(uint32_t start_x,uint32_t start_y,uint8_t operate_tpye);
 void CharacterCHASSIS_MODE(uint32_t start_x,uint32_t start_y,uint8_t operate_tpye);
 void CharacteFRIC_stateShow(uint32_t start_x,uint32_t start_y,uint8_t operate_tpye);
-void AddPicture(uint16_t name ,uint8_t i,uint8_t operate_type,uint32_t graphic_tpye,uint8_t layer,uint32_t color,uint32_t start_angle,uint32_t end_angle,uint32_t width,uint32_t start_x,uint32_t start_y,uint32_t radius,uint32_t end_x,uint32_t end_y);
-void AddPictureFunc(uint8_t i, uint8_t operate_type, uint32_t graphic_tpye, uint8_t layer, uint32_t color, uint32_t start_angle, uint32_t end_angle, uint32_t width, uint32_t start_x, uint32_t start_y, uint32_t radius, uint32_t end_x, uint32_t end_y, uint8_t name[3]);
 void AddFloatdata(uint16_t name , uint8_t i,uint8_t operate_type,uint32_t graphic_tpye,uint8_t layer,uint32_t color,uint32_t start_angle,uint32_t end_angle,uint32_t width,uint32_t start_x,uint32_t start_y);
 void CharacterCapvoltShow(uint32_t start_x,uint32_t start_y,uint8_t operate_tpye);
 void CharacterCHASSISMODstateShow(uint32_t start_x,uint32_t start_y,uint8_t operate_tpye);
 void FloatDataShow(int32_t data1, int32_t data2, int32_t data3,int32_t data4,int32_t data5,uint8_t operate_type1,uint8_t operate_type2);
 void CharacterGIMBAL_MODE(uint32_t start_x, uint32_t start_y, uint8_t operate_tpye);
 void CharacterGIMBALstateShow(uint32_t start_x, uint32_t start_y, uint8_t operate_tpye);
-void Crosshair1(uint8_t operate_type);
+
 void DrawCapVolRectangle(int32_t capVol,uint8_t operate_tpye,int16_t yaw_data);
 
+void CharacterGimbal_MNAUALShow(uint32_t start_x, uint32_t start_y, uint8_t operate_tpye);
+void CharacterGimbal_NULL_Show(uint32_t start_x, uint32_t start_y, uint8_t operate_tpye);
+void CharacterGimbal_HOIST_Show(uint32_t start_x, uint32_t start_y, uint8_t operate_tpye);
+void CharacterGimbal_FULL_VISION_Show(uint32_t start_x, uint32_t start_y, uint8_t operate_tpye);
+void CharacterGimbal_HALF_VISION_Show(uint32_t start_x, uint32_t start_y, uint8_t operate_tpye);
+
+void Character_CHASSIS_NULL_Show(uint32_t start_x, uint32_t start_y, uint8_t operate_tpye);
+void Character_CHASSIS_FOLLOW_Show(uint32_t start_x, uint32_t start_y, uint8_t operate_tpye);
+void Character_CHASSIS_TOP_Show(uint32_t start_x, uint32_t start_y, uint8_t operate_tpye);
+void Character_CHASSIS_STOP_Show(uint32_t start_x, uint32_t start_y, uint8_t operate_tpye);
+void Character_CHASSIS_APART_Show(uint32_t start_x, uint32_t start_y, uint8_t operate_tpye);
+
+void CharacterFricSPEEDShow(uint32_t start_x, uint32_t start_y, uint8_t operate_tpye);
+void CharacterFricTEMPShow(uint32_t start_x, uint32_t start_y, uint8_t operate_tpye);
+
+void Draw_CIRCLE_mode(uint8_t operate_tpye);
 #endif
 /***********************************************************************************************/
 /***********************************************************************************************/

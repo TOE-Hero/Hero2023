@@ -95,11 +95,6 @@ void Monitor_FPS_state(s_FPS_monitor* final_fps)
 		robot_Mode.roboState = CAP_ERROR;
 		return;
 	}
-	//如果帧率正常，机器人状态为正常
-	// if(!((final_fps->dbus<30)&& \
-	// ((final_fps->RF_motor||final_fps->LF_motor||final_fps->LB_motor||final_fps->RB_motor||final_fps->yaw|| \
-	// final_fps->pitch||final_fps->trans||final_fps->fric_l||final_fps->fric_r)<300)&&((final_fps->cap_board||final_fps->judge)<3) \
-	// &&(final_fps->pc<120)))
 	else
 	{
 		robot_Mode.roboState = NOMAL;

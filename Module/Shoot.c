@@ -47,7 +47,7 @@ int16_t 					 	Fric_SpeedTarget=0;//裁判系统弹速
 float 						 	temperture_offset=0;//随着摩擦轮温度升高，降低摩擦轮转速的补偿值
 float				         	average_temperture;//两摩擦轮平均温度
 float                        	average_speed;//两摩擦轮平均速度
-uint16_t					 	fric_target_speed;//摩擦轮目标速度，用作模式转换
+uint32_t					 	fric_target_speed;//摩擦轮目标速度，用作模式转换
 /************************** static declaration ***********************************/
 static int16_t				 	count;//计算射频用，数到射频值重载为0
 static int16_t				 	count_judge_loss;//计算射频用，裁判系统如果掉线，也能够发弹，只不过是很慢的射频
@@ -110,7 +110,7 @@ void Shoot_Move(void)
 	
 	ShootBall();
 	average_speed = (abs(FIRE_L_motor.back_motor_speed) + abs(FIRE_R_motor.back_motor_speed)) / 2;
-	fric_target_speed = (abs(FIRE_R_motor.target_motor_speed)+abs(FIRE_L_motor.target_motor_speed)) / 2;
+	fric_target_speed = (uint32_t)((fabs(FIRE_R_motor.target_motor_speed)+fabs(FIRE_L_motor.target_motor_speed)) / 2);
 	average_temperture=(FIRE_R_motor.temperature+FIRE_R_motor.temperature)/2;//摩擦轮电机平均温度
 	//弹速限幅，如果裁判系统不返回弹速的话，一般bullet_speed.f这个值一直为0，那么就有可能做反向补偿而超弹速，所以做一个限幅
 	bullet_speed_ = bullet_speed.f;

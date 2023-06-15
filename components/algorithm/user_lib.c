@@ -205,7 +205,7 @@ int float_to_uint(float x,float x_min,float x_max,unsigned int bits)
 	return (int) ((x-x_min)*((float)((1<<bits)/span)));
 }
 // 无符号整型转float
-static float uint_to_float(int x_int, float x_min, float x_max, int bits)
+float uint_to_float(int x_int, float x_min, float x_max, int bits)
 {
 	float span = x_max - x_min;
 	float offset = x_min;

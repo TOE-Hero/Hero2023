@@ -27,10 +27,8 @@ typedef struct
 } __attribute__((packed)) first_order_filter_type_t;
 //快速开方
 extern fp32 invSqrt(fp32 num);
-
 //斜波函数初始化
 void rampInit(ramp_function_source_t *ramp_source_type, fp32 frame_period, fp32 max, fp32 min);
-
 //斜波函数计算
 void rampCalc(ramp_function_source_t *ramp_source_type, fp32 input);
 //一阶滤波初始化
@@ -55,6 +53,8 @@ extern fp32 loop_fp32_constrain(fp32 Input, fp32 minValue, fp32 maxValue);
 extern fp32 theta_format(fp32 Ang);
 //一阶低通滤波
 extern float LowFreFilter(filterLow_t *s_filter,float Xn);
+
+extern float uint_to_float(int x_int, float x_min, float x_max, int bits);
 //弧度格式化为-PI~PI
 #define rad_format(Ang) loop_fp32_constrain((Ang), -PI, PI)
 

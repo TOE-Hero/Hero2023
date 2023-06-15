@@ -3,6 +3,7 @@
 #include <cmsis_os.h>
 #include <main.h>
 #include <math.h>
+#include "math.h"
 #include "bsp_can.h"
 #include "STMGood.h"
 #include "bsp_usart.h"
@@ -10,6 +11,7 @@
 #include "bsp_RC.h"
 #include "pid.h"
 #include "INS_task.h"
+#include "Mode_Switch.h"
 /*********************** 底盘信息结构体 *************************/
 typedef struct
 {
