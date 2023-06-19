@@ -205,7 +205,7 @@ static void DBUS_Ctrl(void)
 				else
 					robot_Mode.gimbalMode = G_HALF_GYRO;
 			}
-			// G键锁，开启云台陀螺仪模式
+			// G键锁，开启云台陀螺仪模式，这个按键被连续发弹自杀模式占用了
 			// if(PRESS_X) {keyLock_G=1;deafult_mode_flag=0;}
 			// if(!PRESS_X && keyLock_X==1)
 			// {

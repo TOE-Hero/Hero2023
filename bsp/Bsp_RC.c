@@ -8,9 +8,9 @@
 /**************************** global variable ************************************/
 RC_ctrl_t rc_ctrl;//遥控器控制变量
 /************************** extern declaration ***********************************/
-extern s_FPS_monitor	Fps;
+extern s_FPS_monitor	    Fps;
 extern UART_HandleTypeDef huart3;
-extern DMA_HandleTypeDef hdma_usart3_rx;
+extern DMA_HandleTypeDef  hdma_usart3_rx;
 /*********************************************************************************/
 /**
   * @brief          官方例程的遥控器初始化函数
