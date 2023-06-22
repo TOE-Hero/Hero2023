@@ -35,14 +35,14 @@ VsCode工程缺点：
 #------------------------------------------------------#
    #define configRECORD_STACK_HIGH_ADDRESS          1
 #------------------------------------------------------#
-这一行代码，你可以先检查一下自己的程序中是不是有。
+这一行代码，(CubeMX中是可以点一点就能开启这个选项的)，你可以先检查一下自己的程序中是不是有。
 
 ----->注意：
       1.如果你要使用CubeMX重新生成程序，有可能会导致makefile清空，建议重新生成前把makefile添加bak后缀，
         防止被覆盖掉。
       2.文件夹名字中绝不可以有空格！！！
       3.那些烧录工具尽量添加到系统环境变量里，否则要在.vscode/tasks.json中修改路径
-      4.想换车必须要在./Module/Mode_Switch.h中修改宏定义ROBOT_ID，只要你有多台车，就不可以把程序分成两个工程。
+      4.想换车必须要在Mode/Mode_Switch.h中修改宏定义ROBOT_ID，只要你有多台车，就不可以把程序分成两个工程。
       5.在 Mode_Switch.h 中修改ROBOT_ID宏定义，会由于链接问题导致修改后再build不识别，所以需要make remake；
         至于为什么不把这个宏定义放到 Mode_Switch.c 中，因为vscode打开的其它文件找不到这个宏定义了，就没有高亮了。
         这个高亮其实可以在.vscode/c_cpp_properties.json 中增加宏定义"ROBOT_ID=SUN"，或者"ROBOT_ID=MOON"，
@@ -68,39 +68,66 @@ VsCode工程缺点：
 
 咱的.c和.h文件放在同一个路径下了，单纯为了方便，因为.h文件也有好多有关配置的，方便好找就放在一起了，
 你可以.c一个文件夹.h一个文件夹，看个人喜好.
+0、应用层application：
+   有一个robot文件用来管理不同的机器人；
+   以英雄为例，Hero文件夹内都是有关英雄控制、数据接收、任务调度等功能；
+   如果你想加入自己的机器人，比如步兵，
+   文件夹结构应该是：
 
-1、所有bsp板级支持包文件放在./bsp/board里；
-   bsp_can.c文件是最重要的文件，里面有电机数据接收、底盘C板数据接收和UI数据的一些转发；
-   Bsp_RC.c文件是照着官方移植的遥控器数据串口接收程序，使用了双缓冲DMA，可以仔细看看源码，我标注了详细的注释;
+   Infantry:.
+   │ bsp
+   | Mode
+   | Thread
+   | Variables
+   | Vision
+   └─Infantry_control.h #用来管理上面这些文件夹的头文件，方便统一extern
+   
+   文件夹的结构也可以自己定义，我在这里只建立了bsp、Mode、Thread、Variables、Vision等模块；
+   其中None_robot模块是为了在不需要机器人控制情况下，makefile修改ROBOT参数的值为这个文件夹名，就可以屏蔽机器模块；
+
+   接下来介绍模块中每个组成：
+   bsp主要是放一些兵种特殊需要的外设接口，比如can数据接收函数我就单独拿出来放在hero_can里了；
+   Mode主要放功能控制和自检文件：
+      Mode_Switch用来模式控制；
+      Monitor用来计算帧率和获取机器人状态，其中有蜂鸣器报警部分；
+      Chassis.c文件用来解算底盘运动，然后计算pid，最后给电机发送电流；
+      Gimbal.c文件用来解算云台；
+      Shoot.c文件用来解算发射机构电机电流。
+   Variables主要是用来管理一些重要的全局变量，比如电机结构体变量、pid、ramp(斜坡函数)等；
+   Vision主要是与nuc进行交互，是处理pc数据的接口；
+   Thread主要放具体功能要运行的线程，这部分暂时还没有重构完全，如果需要加入线程，需要打开CubeMX修改，不是很安全；
+
+   我个人觉得应该写一个ConfigfreertosTask.c文件来管理&创建线程，现在目前是需要在CubeMX里修改，后续会加入并测试。
+
+   除了线程需要打开CubeMX修改外（因为我是基于英雄重构的代码），步兵需要使能需要的pwm引脚、平衡步兵需要dwt库等，
+   我这里并没有按所有兵种需求去增加东西，主打个人DIY的灵活度（狗头）。
+
+
+1、基础的bsp板级支持包文件放在./bsp/board里；
+   bsp_can.c文件是最重要的文件，里面写了打开CAN外设的接口和一些CAN发送数据的API；
+   Bsp_remote.c文件是照着官方移植的遥控器数据串口接收程序，使用了双缓冲DMA，可以仔细看看源码，我标注了详细的注释;
    bsp_usart.c文件中主要使用C板4pin口的那个usart1，用来无线调参和数据打印；
    bsp_timer.c文件主要是控制C板上那个小2pin插口的pwm，这个是用来控制RM官方那个红外激光的；
+   bsp_adc.c文件中有计算电池电压和芯片温度的接口；
    其余的bsp文件都是官方自己的。
 
-2、所有线程的文件放在 Thread 里:
-   云台控制程序放在Gimbal_task.c中；
-   底盘控制程序放在Chassis_task.c中；
-   发射机构控制程序放在Shoot_task.c中；
-   陀螺仪数据处理程序在INS_task.c中；
-   自检程序(计算FPS，蜂鸣器报警)在Monitor_task.c中；
-   串口打印程序我单开了一个线程，堆栈给了很大，专门用来蓝牙打印串口用；
-   其余的线程是官方自带的，主要是C板全片擦写后陀螺仪校准数据存在flash中。
-   
-3、模式控制以及pid计算放在Module里，
-   Chassis.c文件用来解算底盘运动，然后计算pid，最后给电机发送电流；
-   Gimbal.c文件用来解算云台；
-   Shoot.c文件用来解算发射机构电机电流。
+2、部分线程文件(led、adc等)放在 根Thread 里:
+   adc计算电压线程放在adc_task中；
+   陀螺仪数据处理程序在INS_task中；
+   上电自检陀螺仪烧写flash等程序在calibrate_task和detect_task中；
+   闪灯程序在led_flow_task中；
+   空闲线程是test_task。
 
-4、有关stm32外接设备相关的都在./components/devices,
+3、有关stm32外接设备相关的都在./components/devices,
    串口重定向格式化文件print.c也在里面，这个是arm-gcc工程专有的，
    如果你用Keil，简单重定向就好了，参考实验室祖传代码或者正点原子的教程。
    其中的设备有：BMI088、IST8310、NUC、串口发送（printf）、电机。
-   电机编码器解算在motor.c里；
+   电机编码器解算在dji_motor.c里，头文件中有不同减速箱3508的精确减速比；
    STMGood上位机在STMGood.c里，已经开启了所有通道的参数输入。
 
-5、有关控制设备的都在./components/controller里：
-   计算总线fps和蜂鸣器报警在Monitor里。
+4、./components/controller 文件为空，没想好要放什么文件。
 
-6、有关控制算法的都在./components/algorithm里，
+5、有关控制算法的都在./components/algorithm里，
    pid.c文件是一些pid解算的接口；
    CRC_Check.c是给PC发送数据时用到的，用来校验串口数据；
    ramp.c是计算斜坡函数的，是有关斜坡函数的一些接口；
@@ -108,11 +135,11 @@ VsCode工程缺点：
    user_lib.c是自己总结的一些常用快速算法，比如快速开方之类的；
    剩余的比如 MahonyAHRS.c、AHRS_middleware.c 都是有关陀螺仪解算的接口。
 
-7、一些官方的静态库文件和arm的数学静态库文件放在了./lib路径下，
+6、一些官方的静态库文件和arm的数学静态库文件放在了./lib路径下，
    主要是 libAHRS.a 和 libarm_cortexM4lf_math.a；
    一个是官方陀螺仪解算，一个是STM32官方的库文件，这个文件我是在cubemx下载的stm32f407ig包里找到的。
 
-8、二进制文件保存在./build。
+7、二进制文件保存在./build。
    *.o 、 *.d 、 *.lst 这些编译的中间文件放在 ./build/temp 里了，这个是在makefile中修改的生成路径;
    工程名.bin、工程名.elf、工程名.hex、工程名.map 这些文件放在./build 中。
    PS: 上传git时不需要上传build文件夹，在初始化仓库时就需要在工程路径下创建.gitignore文件去忽略该路径。
@@ -121,7 +148,7 @@ VsCode工程缺点：
     /build
    #--------------------#
 
-9、UI的程序是用keil构建的，这个懒得重构了，写了一堆屎山代码，造了点轮子，凑合用吧。
+8、UI的程序是用keil构建的，这个懒得重构了，写了一堆屎山代码，造了点轮子，凑合用吧。
 
 三、程序设计思路
 
