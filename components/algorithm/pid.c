@@ -7,9 +7,9 @@
 /* Includes ------------------------------------------------------------------*/
 #include "pid.h"
 #include "main.h"
+#include "math.h"
 #include "string.h"
 #include "struct_typedef.h"
-#include "bsp_can.h"
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
 #define LimitMax(input, max)   \
@@ -24,51 +24,6 @@
 	}                      \
 }
 /* Private macro -------------------------------------------------------------*/
-/* Private function prototypes -----------------------------------------------*/
-/* Private variables ---------------------------------------------------------*/
-/************************** Gimbal ****************************/
-s_pid_absolute_t YAW_motor_pid_pos;//云台pit轴双环
-s_pid_absolute_t YAW_motor_pid_speed;
-s_pid_absolute_t YAW_motor_pid_pos_imu;//云台yaw轴陀螺仪双环
-s_pid_absolute_t YAW_motor_pid_speed_imu;
-s_pid_absolute_t YAW_motor_pid_pos_encode;//云台yaw轴编码器外环
-s_pid_absolute_t YAW_motor_pid_speed_encode;
-s_pid_absolute_t YAW_motor_pid_pos_imu_vis;//云台yaw轴视觉
-s_pid_absolute_t YAW_motor_pid_speed_imu_vis;
-
-s_pid_absolute_t PIT_motor_pid_pos;//云台pit轴双环
-s_pid_absolute_t PIT_motor_pid_speed;
-s_pid_absolute_t PIT_motor_pid_pos_imu;//云台pit轴陀螺仪双环
-s_pid_absolute_t PIT_motor_pid_speed_imu;
-s_pid_absolute_t PIT_motor_pid_pos_imu_vis;//云台pit轴视觉
-s_pid_absolute_t PIT_motor_pid_speed_imu_vis;
-
-s_pid_absolute_t    Camera_motor_pid_pos;//摄像头2006双环
-s_pid_absolute_t    Camera_motor_pid_speed;
-
-/************************* Chassis ****************************/
-/*****************底盘速度环*******************/
-s_pid_absolute_t LF_motor_pid_speed;// +
-s_pid_absolute_t RF_motor_pid_speed;// -
-s_pid_absolute_t LB_motor_pid_speed;// +
-s_pid_absolute_t RB_motor_pid_speed;// -
-/*****************底盘吊射模式双环*******************/
-s_pid_absolute_t LF_motor_pid_stop_pos;
-s_pid_absolute_t RF_motor_pid_stop_pos;
-s_pid_absolute_t LB_motor_pid_stop_pos;
-s_pid_absolute_t RB_motor_pid_stop_pos;
-s_pid_absolute_t LF_motor_pid_stop_speed;
-s_pid_absolute_t RF_motor_pid_stop_speed;
-s_pid_absolute_t LB_motor_pid_stop_speed;
-s_pid_absolute_t RB_motor_pid_stop_speed;
-/************************** Fire ******************************/
-/*****************摩擦轮速度环*******************/
-s_pid_absolute_t FIRE_L_motor_pid_speed;// (-)Value
-s_pid_absolute_t FIRE_R_motor_pid_speed;// (+)Value
-/*****************拨弹盘电机双环*****************/
-s_pid_absolute_t TRANS_motor_pid_pos;
-s_pid_absolute_t TRANS_motor_pid_speed;
-
 /* Private functions ---------------------------------------------------------*/
 /*********************增量式PID控制***********************/
 void PID_IncrementMode(s_pid_increase_t *pid)

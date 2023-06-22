@@ -7,32 +7,10 @@
  **********************************************************************************
  */
 #include "ramp.h"
-/**************************** global variable ***********************************/
-ramp_t ramp_cFllow = RAMP_SLOW_INIT;
-ramp_t ramp_c = RAMP_SLOW_INIT;
-ramp_t ramp_w = RAMP_DEFAULT_INIT;
-ramp_t ramp_s = RAMP_DEFAULT_INIT;
-ramp_t ramp_a = RAMP_DEFAULT_INIT;
-ramp_t ramp_d = RAMP_DEFAULT_INIT;
 /************************** Function declaration *********************************/
-void ramp_init1(ramp_t *ramp);
+void ramp_init(ramp_t *ramp);
 float ramp_cal(ramp_t *ramp);
 /*********************************************************************************/
-/**
- * @brief 套娃初始化斜坡，放到main.c里
- * @param None
- * @return None
- * @attention None
- */
-void ramp_All_init(void)
-{
-	ramp_init1(&ramp_w);
-	ramp_init1(&ramp_s);
-	ramp_init1(&ramp_a);
-	ramp_init1(&ramp_d);
-	ramp_init1(&ramp_c);
-	ramp_init1(&ramp_cFllow);
-}
 
 /**
  * @brief 初始化斜坡
@@ -40,7 +18,7 @@ void ramp_All_init(void)
  * @return None
  * @attention None
  */
-void ramp_init1(ramp_t *ramp){
+void ramp_init(ramp_t *ramp){
 	ramp->count = 0;
 	ramp->out = 0;
 }

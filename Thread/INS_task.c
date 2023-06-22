@@ -23,6 +23,7 @@
 
 #include "INS_task.h"
 #include "main.h"
+#include "math.h"
 #include "cmsis_os.h"
 #include "bsp_imu_pwm.h"
 #include "bsp_spi.h"

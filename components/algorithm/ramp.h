@@ -35,9 +35,7 @@ typedef struct{
 	.interval = 0, \
 	.out = 0,\
 	}
-void ramp_All_init(void);
-void ramp_init1(ramp_t *ramp);
+void ramp_init(ramp_t *ramp);
 float ramp_cal(ramp_t *ramp);
-extern ramp_t ramp_c,ramp_w,ramp_s,ramp_a,ramp_d,ramp_cFllow;
 
 #endif

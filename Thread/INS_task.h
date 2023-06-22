@@ -24,6 +24,7 @@
 #ifndef INS_Task_H
 #define INS_Task_H
 #include "struct_typedef.h"
+#include "math.h"
 #include <stdio.h>
 typedef struct {
     float yaw;

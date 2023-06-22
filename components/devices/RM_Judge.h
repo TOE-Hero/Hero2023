@@ -1,8 +1,6 @@
 #ifndef __RM_JUDGE_H
 #define __RM_JUDGE_H
 
-#include "motor.h"
-
 typedef struct
 {
     

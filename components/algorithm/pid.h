@@ -16,7 +16,7 @@
 /********increase mode*******/
 typedef struct 
 {
-    float kp;
+  float kp;
 	float ki;
 	float kd;
 	
@@ -57,21 +57,6 @@ typedef struct
 	float PIDout;     //PID运算后输出量
 	float PIDoutMAX;  //PID运算后输出量上限
 }s_pid_absolute_t; //绝对式
-
-extern s_pid_absolute_t YAW_motor_pid_pos;
-extern s_pid_absolute_t YAW_motor_pid_pos_imu;
-extern s_pid_absolute_t YAW_motor_pid_speed;
-extern s_pid_absolute_t YAW_motor_pid_speed_imu;
-extern s_pid_absolute_t PIT_motor_pid_pos;
-extern s_pid_absolute_t PIT_motor_pid_speed;
-extern s_pid_absolute_t FIRE_L_motor_pid_speed;
-extern s_pid_absolute_t FIRE_R_motor_pid_speed;
-extern s_pid_absolute_t TRANS_motor_pid_pos;
-extern s_pid_absolute_t TRANS_motor_pid_speed;
-extern s_pid_absolute_t LF_motor_pid_speed;// 
-extern s_pid_absolute_t RF_motor_pid_speed;// 
-extern s_pid_absolute_t LB_motor_pid_speed;//
-extern s_pid_absolute_t RB_motor_pid_speed;//
 
 
 void PID_IncrementMode(s_pid_increase_t *pid);

@@ -83,7 +83,7 @@
                 "type": "shell",
                 "command": "JLink.exe",
                 "args": [
-                    "JLink/STM32F407IGxx.jlink"
+                    ".JLink/STM32F407IGxx.jlink"
                 ],
                 "problemMatcher": []
             },
@@ -123,7 +123,7 @@
                 "type": "shell",
                 "command": "JLink.exe",
                 "args": [
-                    "JLink/STM32F407IGxx_erase.jlink"
+                    ".JLink/STM32F407IGxx_erase.jlink"
                 ],
                 "problemMatcher": []
             },

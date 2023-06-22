@@ -20,6 +20,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "cmsis_os.h"
+#include "adc.h"
 #include "can.h"
 #include "dma.h"
 #include "i2c.h"
@@ -39,18 +40,12 @@
 #include "bsp_can.h"
 #include "bsp_usart.h"
 #include "bsp_timer.h"
-#include "Chassis.h"
-#include "Shoot.h"
-#include "Gimbal.h"
-#include "nuc_interface.h"
-#include "ramp.h"
-#include "Mode_Switch.h"
-#include "motor.h"
-#include "bsp_RC.h"
+#include "dji_motor.h"
+#include "bsp_remote.h"
 #include "pid.h"
 #include "STMGood.h"
-#include "Gimbal.h"
-#include "Shoot.h"
+
+#include "robot.h"
 
 /* USER CODE END Includes */
 
@@ -133,6 +128,8 @@ int main(void)
   MX_TIM10_Init();
   MX_USART1_UART_Init();
   MX_USART6_UART_Init();
+  MX_ADC1_Init();
+  MX_ADC3_Init();
   /* USER CODE BEGIN 2 */
 delay_init();//RM C板例程中延时函数初始
 cali_param_init();//RM C板例程中自检结构体初始化
@@ -140,15 +137,12 @@ MX_USB_DEVICE_Init();//USB初始化，如果使用了freertos，那么它会在�
 MY_CAN_Init();//CAN初始
 MY_USART_Init();//串口初始
 remote_control_init();//遥控器初始化
-ModeInit();//模式初始化，默认模式是NULL模式，即零电流模式
-ramp_All_init();//斜坡函数初始化
-Timer_Init();//定时器初始化，主要是用在红外激光上
-HAL_Delay(500);//延时是由于防止can路刚上电，数据不稳定，防止疯车
-Chassis_Init();//底盘电机信息与PID结构体初始化
-Shoot_Init();//发射机构电机初始化
-//HAL_Delay(500);//延时是因为AK电机要上电后等一会才能发can信息,当然2022.5.14日把AK60换成6020加减速箱，再也不用担心ak60的垃圾bug
-Gimbal_Init();//云台电机初始
-	
+Timer_Init();//定时器初始化，主要是用在红外�?光上
+
+HAL_Delay(500);//延时是由于防止can路刚上电，数据不稳定，防止疯�?
+
+RobotInit();
+
   /* USER CODE END 2 */
 
   /* Call init function for freertos objects (in freertos.c) */

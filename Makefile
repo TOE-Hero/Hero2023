@@ -31,7 +31,7 @@ ifneq ("$(PRE_TARGET)" , "$(current_dir)")
 endif
 
 TARGET = $(PRE_TARGET)
-
+ROBOT = Hero
 ######################################
 # building variables
 ######################################
@@ -55,6 +55,7 @@ C_SOURCES =  \
 Src/main.c \
 Src/gpio.c \
 Src/freertos.c \
+Src/adc.c \
 Src/can.c \
 Src/dma.c \
 Src/i2c.c \
@@ -84,6 +85,8 @@ Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_pwr_ex.c \
 Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_cortex.c \
 Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal.c \
 Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_exti.c \
+Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_adc_ex.c \
+Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_adc.c \
 Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_can.c \
 Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_i2c.c \
 Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_i2c_ex.c \
@@ -106,12 +109,17 @@ Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_core.c \
 Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_ctlreq.c \
 Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_ioreq.c \
 Middlewares/ST/STM32_USB_Device_Library/Class/CDC/Src/usbd_cdc.c \
-$(wildcard ./Thread/*.c) \
 $(wildcard ./bsp/*.c) \
-$(wildcard ./components/controller/*.c) \
 $(wildcard ./components/devices/*.c) \
+$(wildcard ./components/controller/*.c) \
 $(wildcard ./components/algorithm/*.c) \
-$(wildcard ./Module/*.c)
+$(wildcard ./Thread/*.c) \
+$(wildcard ./application/*.c) \
+$(wildcard ./application/$(ROBOT)/bsp/*.c) \
+$(wildcard ./application/$(ROBOT)/Mode/*.c) \
+$(wildcard ./application/$(ROBOT)/Thread/*.c) \
+$(wildcard ./application/$(ROBOT)/Variables/*.c) \
+$(wildcard ./application/$(ROBOT)/Vision/*.c)
 
 # ASM sources
 ASM_SOURCES =  \
@@ -185,13 +193,19 @@ C_INCLUDES =  \
 -IMiddlewares/ST/STM32_USB_Device_Library/Class/CDC/Inc \
 -IDrivers/CMSIS/Device/ST/STM32F4xx/Include \
 -IDrivers/CMSIS/Include \
--IThread \
 -Ibsp \
--IModule \
 -Icomponents/algorithm \
 -Icomponents/controller \
 -Icomponents/devices \
--Icomponents/algorithm/Include
+-Icomponents/algorithm/Include \
+-IThread \
+-Iapplication \
+-Iapplication/$(ROBOT) \
+-Iapplication/$(ROBOT)/bsp \
+-Iapplication/$(ROBOT)/Mode \
+-Iapplication/$(ROBOT)/Thread \
+-Iapplication/$(ROBOT)/Variables \
+-Iapplication/$(ROBOT)/Vision
 
 # compile gcc flags
 ASFLAGS = $(MCU) $(AS_DEFS) $(AS_INCLUDES) $(OPT) -Wall -fdata-sections -ffunction-sections

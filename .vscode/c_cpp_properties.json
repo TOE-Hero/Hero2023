@@ -16,11 +16,17 @@
                 "${workspaceFolder}/Drivers/CMSIS/Include",
                 "${workspaceFolder}/Thread",
                 "${workspaceFolder}/bsp",
-                "${workspaceFolder}/Module",
                 "${workspaceFolder}/components/algorithm",
                 "${workspaceFolder}/components/controller",
                 "${workspaceFolder}/components/devices",
-                "${workspaceFolder}/components/algorithm/Include"
+                "${workspaceFolder}/components/algorithm/Include",
+                "${workspaceFolder}/application",
+                "${workspaceFolder}/application/Hero",
+                "${workspaceFolder}/application/Hero/bsp",
+                "${workspaceFolder}/application/Hero/Mode",
+                "${workspaceFolder}/application/Hero/Thread",
+                "${workspaceFolder}/application/Hero/Variables",
+                "${workspaceFolder}/application/Hero/Vision"
             ],
             "defines": [
                 "_DEBUG",

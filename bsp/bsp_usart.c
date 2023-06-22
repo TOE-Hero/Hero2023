@@ -13,10 +13,8 @@
 #include "usart.h"
 #include "bsp_usart.h"
 #include "STMGood.h"
-#include "bsp_RC.h"
-#include "nuc_interface.h"
 #include "printf.h"
-
+/*----------------* define declaration --------------*/
 #define USART1_DEBUG 1
 #define USART6_DEBUG 0
 #define USART_ALL_DEBUG 0
@@ -26,16 +24,16 @@
 #define NUC_USART_HANDLE huart6
 #define NUC_DMA_USART hdma_usart6_rx
 #define NUC_REC_LEN 16u
-/****** Create a buffer for the Recived data ******/
-/*************** extern declaration ***************/
+
+/*---------------- extern declaration ----------------*/
 extern DMA_HandleTypeDef hdma_usart6_rx;
-extern su_PC_DATA pcData;
-/***************** 创建串口缓存区 *****************/
+/*------------------- 创建串口缓存区 ------------------*/
 uint8_t usart1_rx_buffer[30] = {0};  // For debug
 uint8_t usart6_rx_buffer[30] = {0};
-extern uint8_t visionData_buff[16u];
-/******** Functions declared in this file ********/
+// extern uint8_t visionData_buff[16u];
+/*------------ Functions declared in this file ------*/
 void MY_UART_ENABLE_DMA_IDLE(UART_HandleTypeDef *huart, DMA_HandleTypeDef *hdma, uint8_t *buff, uint8_t bufflen);
+/*-------------------------------------------------------------------------------------------------------------*/
 /**
 * @brief  Software peripherals USART initialization，放到main.c里
 * @param  None
@@ -49,25 +47,15 @@ void MY_USART_Init(void)
 //	MY_UART_ENABLE_DMA_IDLE(&huart6, &hdma_usart6_rx, visionData_buff, 16u);//原来接收pc串口的方式
 }
 
-void MY_UART_ENABLE_DMA_IDLE(UART_HandleTypeDef *huart, DMA_HandleTypeDef *hdma, uint8_t *buff, uint8_t bufflen)
-{
-	HAL_DMA_Start_IT(hdma, (uint32_t)huart->Instance->DR,(uint32_t)buff, bufflen);
-	CLEAR_BIT(hdma->Instance->CR,DMA_IT_HT);
-	huart->Instance->CR3 |= USART_CR3_DMAR;
-	__HAL_UART_ENABLE_IT(huart,UART_IT_IDLE);
-	HAL_UART_Receive_DMA(huart, buff, bufflen);
-	__HAL_UART_ENABLE_IT(huart,UART_IT_ERR);
-}
-/******** Callback Functions used USART ********/
 /**
-  * @brief  重定义串口接收中断回调函数
+  * @brief  串口接收中断回调函数
   * @param  UART_HandleTypeDef* huart:系统自动填入的发生中断的串口句柄指针
   * @retval None
   * @note   未开启DMA用此回调函数
   */
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef* huart)
 {
-/***************************************重定义printf*************************************/
+/*----------------------------------------------- 串口接收 ----------------------------------------------------*/
 	if(huart -> Instance == USART1)
 	{
 		// 如果格式符合上位机的格式，则对相应变量进行赋值（p，i，d）
@@ -88,6 +76,19 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef* huart)
 	}
 }
 
+
+/*---------------------------------- 弃用函数，DMA串口接收PC数据，有需要可以改一改用 -----------------------------*/
+void MY_UART_ENABLE_DMA_IDLE(UART_HandleTypeDef *huart, DMA_HandleTypeDef *hdma, uint8_t *buff, uint8_t bufflen)
+{
+	HAL_DMA_Start_IT(hdma, (uint32_t)huart->Instance->DR,(uint32_t)buff, bufflen);
+	CLEAR_BIT(hdma->Instance->CR,DMA_IT_HT);
+	huart->Instance->CR3 |= USART_CR3_DMAR;
+	__HAL_UART_ENABLE_IT(huart,UART_IT_IDLE);
+	HAL_UART_Receive_DMA(huart, buff, bufflen);
+	__HAL_UART_ENABLE_IT(huart,UART_IT_ERR);
+}
+
+
 void UART_RX_IDLE_IRQ(UART_HandleTypeDef *huart)//接收pc串口处理数据与中断函数，放到中断里执行，后来改用USB
 {
 	if(huart->Instance == NUC_USART)
@@ -96,14 +97,14 @@ void UART_RX_IDLE_IRQ(UART_HandleTypeDef *huart)//接收pc串口处理数据与�
 			{
 			__HAL_UART_CLEAR_IDLEFLAG(&NUC_USART_HANDLE);
 			HAL_UART_DMAStop(&NUC_USART_HANDLE);
-			HAL_UART_Receive_DMA(&NUC_USART_HANDLE,visionData_buff,NUC_REC_LEN);
+			// HAL_UART_Receive_DMA(&NUC_USART_HANDLE,visionData_buff,NUC_REC_LEN);
 			CLEAR_BIT(hdma_usart6_rx.Instance->CR,DMA_IT_HT);
 			}
 	}
 }
 
-
-#ifdef __CC_ARM
+/*----------------------------------------------- 串口重定向 ----------------------------------------------------*/
+#ifdef __CC_ARM //Keil编译器
 #if	USART1_DEBUG == 1
 /**
   * @brief  对printf函数的重定义(USART1)
@@ -133,7 +134,7 @@ int fputc(int ch, FILE* f)
 #endif
 #endif
 
-#ifdef __GNUC__
+#ifdef __GNUC__ //arm-none-gcc-eabi编译器
 #if	USART1_DEBUG == 1
 /**
   * @brief  对printf函数的重定义(USART1)

@@ -31,6 +31,7 @@
 #include "detect_task.h"
 #include "INS_task.h"
 #include "led_flow_task.h"
+#include "adc_task.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -40,7 +41,7 @@ osThreadId calibrate_tast_handle;
 osThreadId detect_handle;
 osThreadId imuTaskHandle;
 osThreadId led_RGB_flow_handle;
-
+osThreadId adc_handle;
 
 /* USER CODE END PTD */
 
@@ -177,6 +178,8 @@ void MX_FREERTOS_Init(void) {
     osThreadDef(led, led_RGB_flow_task, osPriorityNormal, 0, 128);
     led_RGB_flow_handle = osThreadCreate(osThread(led), NULL);
 
+    osThreadDef(adc, adc_task, osPriorityNormal, 0, 128);
+    adc_handle = osThreadCreate(osThread(adc), NULL);
 
   /* USER CODE END RTOS_THREADS */
 

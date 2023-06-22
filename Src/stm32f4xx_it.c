@@ -24,7 +24,6 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "bsp_usart.h"
-#include "nuc_interface.h"
 #include "STMGood.h"
 /* USER CODE END Includes */
 
