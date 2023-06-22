@@ -68,7 +68,20 @@ VsCode工程缺点：
 
 咱的.c和.h文件放在同一个路径下了，单纯为了方便，因为.h文件也有好多有关配置的，方便好找就放在一起了，
 你可以.c一个文件夹.h一个文件夹，看个人喜好.
-0、应用层application：
+
+0、各种前缀.文件夹：
+   .instruction文件夹里面有一些说明文档和教程，有一些程序框图；
+   .JLink文件夹主要是与task.json+Jlink.exe配合来使用jlink烧录程序，等于是Jlink.exe的脚本；
+   .Ozone文件夹是用来存放Ozone调试用的FreeRTOSPlugin_CM4.js文件和Ozone工程配置文件；
+   .Serial_debug_tools里面是两个串口调试工具(免安装)(Vofa+没有，自己去官网下)；
+   .vscode中主要存放vscode配置文件：
+      c_cpp_properties.json用来配置当前工作空间的各文件或者变量索引(仅与高亮有关)；
+      keybindings.json这个文件是快捷键配置，这个文件放在这个文件夹是不生效的，需要放到系统的keybindings.json中；
+      launch.json我基本都弃用了，这个文件用来配置vscode中debug的，但是只能打断点调试，后来不用了；
+      settings.json是相对当前工作空间与系统配置不同的设置的修改；
+      tasks.json是比较重要的文件，这个文件放在这个文件夹是对当前工作空间生效的，用来烧录程序，编译程序等
+
+1、应用层application：
    有一个robot文件用来管理不同的机器人；
    以英雄为例，Hero文件夹内都是有关英雄控制、数据接收、任务调度等功能；
    如果你想加入自己的机器人，比如步兵，
@@ -103,7 +116,7 @@ VsCode工程缺点：
    我这里并没有按所有兵种需求去增加东西，主打个人DIY的灵活度（狗头）。
 
 
-1、基础的bsp板级支持包文件放在./bsp/board里；
+2、基础的bsp板级支持包文件放在./bsp/board里；
    bsp_can.c文件是最重要的文件，里面写了打开CAN外设的接口和一些CAN发送数据的API；
    Bsp_remote.c文件是照着官方移植的遥控器数据串口接收程序，使用了双缓冲DMA，可以仔细看看源码，我标注了详细的注释;
    bsp_usart.c文件中主要使用C板4pin口的那个usart1，用来无线调参和数据打印；
@@ -111,23 +124,23 @@ VsCode工程缺点：
    bsp_adc.c文件中有计算电池电压和芯片温度的接口；
    其余的bsp文件都是官方自己的。
 
-2、部分线程文件(led、adc等)放在 根Thread 里:
+3、部分线程文件(led、adc等)放在 根Thread 里:
    adc计算电压线程放在adc_task中；
    陀螺仪数据处理程序在INS_task中；
    上电自检陀螺仪烧写flash等程序在calibrate_task和detect_task中；
    闪灯程序在led_flow_task中；
    空闲线程是test_task。
 
-3、有关stm32外接设备相关的都在./components/devices,
+4、有关stm32外接设备相关的都在./components/devices,
    串口重定向格式化文件print.c也在里面，这个是arm-gcc工程专有的，
    如果你用Keil，简单重定向就好了，参考实验室祖传代码或者正点原子的教程。
    其中的设备有：BMI088、IST8310、NUC、串口发送（printf）、电机。
    电机编码器解算在dji_motor.c里，头文件中有不同减速箱3508的精确减速比；
    STMGood上位机在STMGood.c里，已经开启了所有通道的参数输入。
 
-4、./components/controller 文件为空，没想好要放什么文件。
+5、./components/controller 文件为空，没想好要放什么文件。
 
-5、有关控制算法的都在./components/algorithm里，
+6、有关控制算法的都在./components/algorithm里，
    pid.c文件是一些pid解算的接口；
    CRC_Check.c是给PC发送数据时用到的，用来校验串口数据；
    ramp.c是计算斜坡函数的，是有关斜坡函数的一些接口；
@@ -135,11 +148,11 @@ VsCode工程缺点：
    user_lib.c是自己总结的一些常用快速算法，比如快速开方之类的；
    剩余的比如 MahonyAHRS.c、AHRS_middleware.c 都是有关陀螺仪解算的接口。
 
-6、一些官方的静态库文件和arm的数学静态库文件放在了./lib路径下，
+7、一些官方的静态库文件和arm的数学静态库文件放在了./lib路径下，
    主要是 libAHRS.a 和 libarm_cortexM4lf_math.a；
    一个是官方陀螺仪解算，一个是STM32官方的库文件，这个文件我是在cubemx下载的stm32f407ig包里找到的。
 
-7、二进制文件保存在./build。
+8、二进制文件保存在./build。
    *.o 、 *.d 、 *.lst 这些编译的中间文件放在 ./build/temp 里了，这个是在makefile中修改的生成路径;
    工程名.bin、工程名.elf、工程名.hex、工程名.map 这些文件放在./build 中。
    PS: 上传git时不需要上传build文件夹，在初始化仓库时就需要在工程路径下创建.gitignore文件去忽略该路径。
