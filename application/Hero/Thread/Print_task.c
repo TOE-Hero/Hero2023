@@ -117,6 +117,7 @@ extern int8_t g_gyro_flag;
 extern int8_t deafult_mode_flag;
 extern u_data_32bit bullet_speed;
 extern uint16_t shot_ball_amount;
+extern uint8_t trans_can_state;
 /*******************************************************************************/
 typedef struct
 {
@@ -161,7 +162,8 @@ void Print_task(void const * argument)
 	osDelay((uint16_t)(1000/PRINT_FREQUENCY));//打印频率
 	
 	//printf("%s\r\n","HERO_test");
-	
+
+	// printf("%d\r\n",trans_can_state);
 /********************************************************** Judge ************************************************************/
 	//printf("%d\r\n",JudgeGameState.arr2[0]);
 	//printf("%d\r\n",g_gyro_flag);
@@ -232,7 +234,7 @@ void Print_task(void const * argument)
 		#endif
 
 		//printf("%d\r\n",TRANS_motor.coolingheat_limit);
-		printf("%d  %d %f\r\n",TRANS_motor.out_current,TRANS_motor.back_current,TRANS_motor_pid_pos.NowError);
+		// printf("%d  %d %f\r\n",TRANS_motor.out_current,TRANS_motor.back_current,TRANS_motor_pid_pos.NowError);
 		
 		}
 /********************************************************** Gimbal *********************************************************/

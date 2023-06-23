@@ -21,7 +21,7 @@ static uint8_t pcTick = 0;
 extern volatile uint8_t gyro_flag;//陀螺仪标志位
 extern uint8_t RobotId;
 
-
+uint16_t fps_gimbal_task = 0;
 /**
   * @brief          云台任务,Yaw轴电机&Pitch轴电机
   * @param[in]      
@@ -33,6 +33,7 @@ void Gimbal_task(void const * argument)
 	
   while(1)
     {
+		fps_gimbal_task++;
 		gimLastWakeTime = xTaskGetTickCount();
 		pcTick++;
 		if(!(pcTick % (500/SendPcData_FREQUENCE)))
@@ -68,15 +69,15 @@ void Gimbal_task(void const * argument)
 		taskENTER_CRITICAL();
 		ModeSwitch();//模式选择
 		if(gyro_flag)
-		 {
+		{
 			Gimbal_Move();
-		 }
-		 else
-		 {
-			 CANTx_SendCurrent(&hcan1,0x1FF, 0 , 0 , 0 , 0 );
-			 CANTx_SendCurrent(&hcan2,0x1FF, 0 , 0 , 0 , 0 );
-		 }
-		 
+		}
+		else
+		{
+			CANTx_SendCurrent(&hcan1,0x1FF, 0 , 0 , 0 , 0 );
+			CANTx_SendCurrent(&hcan2,0x1FF, 0 , 0 , 0 , 0 );
+		}
+		
 		taskEXIT_CRITICAL();
 		vTaskDelayUntil(&gimLastWakeTime, 2);
     }

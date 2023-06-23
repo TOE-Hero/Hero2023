@@ -1,4 +1,4 @@
-# 大连交通大学英雄电控程序开源
+# 大连交通大学2023英雄电控程序开源
 
 本人环境配置教程：<https://robomaster.ones.pro/wiki/#/team/T6gsU22v/space/oqJvJWK4/page/2okLKyCo>
 
@@ -97,14 +97,15 @@ VsCode工程缺点：
 
 文件夹结构应该是：
 
-```txt
+```bash
    Infantry:.
-   │ bsp
-   | Mode
-   | Thread
-   | Variables
-   | Vision
-   └─Infantry_control.h #用来管理上面这些文件夹的头文件，方便统一extern
+   │ bsp # 用来实例化can中断回调函数，一些兵种独立的can发送接口
+   | Devices # 用来控制额外设备，比如PC交互
+   | Mode # 主要的机器人运动控制模块，里面有各种模式
+   | Thread # 线程运行
+   |  └─ConfigTask # 线程管理与创建
+   | Variables # 全局变量管理
+   └─Infantry_control.h # 用来管理上面这些文件夹的头文件，方便统一extern
 ```
 
 文件夹的结构也可以自己定义，我在这里只建立了`bsp、Mode、Thread、Variables、Devices`等模块；
@@ -120,16 +121,22 @@ VsCode工程缺点：
   * `Mode_Switch`用来模式控制;
   * `Monitor`用来计算帧率和获取机器人状态，其中有蜂鸣器报警部分；
   * `Chassis.c`文件用来解算底盘运动，然后计算pid，最后给电机发送电流；
-  * `Gimbal.c`文件用来解算云台；
+  * `Gimbal.c`文件用来解算云台，并发送电流；
   * `Shoot.c`文件用来解算发射机构电机电流。
 
 * `Variables`主要是用来管理一些重要的全局变量，比如电机结构体变量、pid、ramp(斜坡函数)等；
 
 * `Devices`主要是设备控制的代码：
 
-  * `nuc_interface`主要是处理PC信息的文件，并在其中计算自瞄目标。
+  * `nuc_interface`主要是处理PC信息的文件，并在其中计算自瞄目标值。
 
-* `Thread`主要放具体功能要运行的线程，这部分暂时还没有重构完全，如果需要加入线程，需要打开CubeMX修改，不是很安全；
+* `Thread`主要放具体功能要运行的线程;
+
+  * `ConfigTask`文件夹主要用来创建和管理线程，最终的.h文件被Hero_control.h包含，最后被robot.c调用，其中`RobotTaskInit()`函数用来创建线程，这个函数最终放在`freertos.c`的`MX_FREERTOS_Init`中。
+
+PS:`Chassis_task`、`Gimbal_task`、`Shoot_task`这三个线程需要`osPriorityHigh`优先级,不然`can2`发送会返回`HAL_ERROR`
+
+**<u><font color='red'> (这是个待解决bug，不知道为什么) </font></u>**
 
 我个人觉得应该写一个`ConfigfreertosTask.c`文件来管理&创建线程，现在目前是需要在CubeMX里修改，后续会加入并测试。
 
@@ -149,7 +156,7 @@ VsCode工程缺点：
 
 * 其余的bsp文件都是官方自己的。
 
-### 3. 部分线程文件(led、adc等)放在 根Thread 里
+### 3. 部分线程文件(led、adc等)放在 ./Thread 里
 
 * adc计算电压线程放在`adc_task`中;
 
@@ -159,7 +166,7 @@ VsCode工程缺点：
 
 * 闪灯程序在`led_flow_task`中;
 
-* 空闲线程是`test_task`。
+* 空闲线程是`idle_task`,这个没有放在文件夹里。
 
 ### 4. 有关stm32外接设备相关的都在./components/devices
 

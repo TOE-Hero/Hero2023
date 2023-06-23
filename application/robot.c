@@ -32,3 +32,13 @@ void RobotDealUSBData(uint8_t *Buf)
     DealPcData(&pcData,Buf);
     #endif // _HERO_
 }
+/**
+ * @brief 机器人线程初始化函数
+ * 
+ */
+void RobotTaskInit(void)
+{
+    #if _ROBOT_ == _HERO_
+    HERO_FREERTOS_Init();
+    #endif // _HERO_
+}

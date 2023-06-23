@@ -31,6 +31,7 @@ ifneq ("$(PRE_TARGET)" , "$(current_dir)")
 endif
 
 TARGET = $(PRE_TARGET)
+# ROBOT = None_robot
 ROBOT = Hero
 ######################################
 # building variables
@@ -118,6 +119,7 @@ $(wildcard ./application/*.c) \
 $(wildcard ./application/$(ROBOT)/bsp/*.c) \
 $(wildcard ./application/$(ROBOT)/Mode/*.c) \
 $(wildcard ./application/$(ROBOT)/Thread/*.c) \
+$(wildcard ./application/$(ROBOT)/Thread/ConfigTask/*.c) \
 $(wildcard ./application/$(ROBOT)/Variables/*.c) \
 $(wildcard ./application/$(ROBOT)/Devices/*.c)
 
@@ -204,6 +206,7 @@ C_INCLUDES =  \
 -Iapplication/$(ROBOT)/bsp \
 -Iapplication/$(ROBOT)/Mode \
 -Iapplication/$(ROBOT)/Thread \
+-Iapplication/$(ROBOT)/Thread/ConfigTask \
 -Iapplication/$(ROBOT)/Variables \
 -Iapplication/$(ROBOT)/Devices
 

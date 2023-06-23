@@ -175,7 +175,7 @@ typedef enum
 } cali_id_e;
 
 
-typedef struct
+typedef struct __packed
 {
     uint8_t name[3];                                    //device name
     uint8_t cali_done;                                  //0x55 means has been calibrated
@@ -183,10 +183,10 @@ typedef struct
     uint8_t cali_cmd : 1;                               //1 means to run cali hook function,
     uint32_t *flash_buf;                                //link to device calibration data
     bool_t (*cali_hook)(uint32_t *point, bool_t cmd);   //cali function
-}__packed cali_sensor_t;
+} cali_sensor_t;
 
 //header device
-typedef struct
+typedef struct __packed
 {
     uint8_t self_id;            // the "SELF_ID"
     uint16_t firmware_version;  // set to the "FIRMWARE_VERSION"
@@ -194,7 +194,7 @@ typedef struct
     //'temperature' and 'latitude'不应该在head_cali,因为不想创建一个新的设备就放这了
     int8_t temperature;         // imu control temperature
     fp32 latitude;              // latitude
-}__packed head_cali_t;
+} head_cali_t;
 //gimbal device
 typedef struct
 {

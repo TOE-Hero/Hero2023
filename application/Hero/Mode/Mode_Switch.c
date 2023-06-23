@@ -244,7 +244,7 @@ static void DBUS_Ctrl(void)
 			robot_Mode.gimbalMode = G_FULL_VISION;//G_GYRO;//G_HALF_VISION;//G_FULL_VISION;//G_HALF_VISION;
 			robot_Mode.chassisMode= C_APART;
 			robot_Mode.shootMode  = S_STOP;
-			robot_Mode.transMode  = T_NULL;
+			robot_Mode.transMode  = T_STOP;
 		}
 		if(LS_MID && RS_UP)//MID | UP
 		{deafult_mode_flag=1;

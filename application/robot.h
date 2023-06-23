@@ -3,10 +3,10 @@
 
 #include "struct_typedef.h"
 /*------------------------ define ----------------------------*/
-#define _NONE_ROBOT_ 0
-#define _HERO_ 1
+#define _NONE_ROBOT_    0
+#define _HERO_          1
 /*----------------- 选择机器人 ----------------*/
-#define _ROBOT_ _HERO_
+#define _ROBOT_         _HERO_
 /*-------------- 选择机器人头文件 --------------*/
 #if _ROBOT_ == _HERO_
 #include "Hero_control.h"
@@ -16,6 +16,7 @@
 /*------------------- function declaration ---------------------*/
 void RobotInit(void);
 void RobotDealUSBData(uint8_t *Buf);
+void RobotTaskInit(void);
 /*--------------------------------------------------------------*/
 #endif //ROBOT_H
 

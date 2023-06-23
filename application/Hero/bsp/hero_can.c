@@ -55,19 +55,20 @@
 #endif
 /*---------------------------------- global variable ----------------------------------------*/
 /******************************* 裁判系统数据 ************************************/
-uint8_t 		RobotId;//机器人ID
-uint8_t			RobotLevel;//机器人等级
-uint16_t 		shot_ball_amount=0;//发射弹丸数目
-u_data_16bit 	chassis_power_buff;//缓冲能量,60J
-u_data_16bit 	chassis_power_limit;//功率限制
-u_data_16bit 	coolingheat;//拨弹盘（枪管）实时热量
-u_data_16bit 	coolingheat_limit;//拨弹盘（枪管）最大冷却值
-u_data_16bit 	friSped;//最大弹速
-u_data_32bit 	chassis_power;//实时功率
-u_data_32bit 	bullet_speed;//弹速
-uint8_t			PowerState[3] = {0,0,0};
-uint32_t 		JudgePowerStateCount = 0;
-
+uint8_t 					RobotId;//机器人ID
+uint8_t						RobotLevel;//机器人等级
+uint16_t 					shot_ball_amount=0;//发射弹丸数目
+u_data_16bit 				chassis_power_buff;//缓冲能量,60J
+u_data_16bit 				chassis_power_limit;//功率限制
+u_data_16bit 				coolingheat;//拨弹盘（枪管）实时热量
+u_data_16bit 				coolingheat_limit;//拨弹盘（枪管）最大冷却值
+u_data_16bit 				friSped;//最大弹速
+u_data_32bit 				chassis_power;//实时功率
+u_data_32bit 				bullet_speed;//弹速
+uint8_t						PowerState[3] = {0,0,0};
+uint32_t 					JudgePowerStateCount = 0;
+/*---------------------- CAN 发送状态结构体 --------------*/
+s_can_send_state_t 			can_send_state;
 /*************************** extern declaration ********************************/
 extern chassisMove_t		s_chassisMove;
 extern s_FPS_monitor		Fps;

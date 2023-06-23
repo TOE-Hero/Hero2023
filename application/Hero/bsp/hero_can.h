@@ -3,7 +3,16 @@
 
 #include "stm32f4xx.h"
 #include "Hero_control.h"
+/*---------------------- CAN 发送状态结构体 --------------*/
+typedef struct
+{
+	uint8_t pit;
+	uint8_t yaw;
+	uint8_t shoot;
+	uint8_t chassis;
+}s_can_send_state_t;
 
+extern s_can_send_state_t can_send_state;
 /*---------------------- CAN 发送\接收 结构体数组 --------------*/
 
 typedef union{

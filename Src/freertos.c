@@ -32,6 +32,8 @@
 #include "INS_task.h"
 #include "led_flow_task.h"
 #include "adc_task.h"
+#include "robot.h"
+
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -59,24 +61,14 @@ osThreadId adc_handle;
 /* USER CODE BEGIN Variables */
 
 /* USER CODE END Variables */
-osThreadId TESTHandle;
-osThreadId GIMBALHandle;
-osThreadId CHASSISHandle;
-osThreadId SHOOTHandle;
-osThreadId MONITORHandle;
-osThreadId PRINTHandle;
+osThreadId idleHandle;
 
 /* Private function prototypes -----------------------------------------------*/
 /* USER CODE BEGIN FunctionPrototypes */
    
 /* USER CODE END FunctionPrototypes */
 
-void test_task(void const * argument);
-void Gimbal_task(void const * argument);
-void Chassis_task(void const * argument);
-void Shoot_task(void const * argument);
-void Monitor_task(void const * argument);
-void Print_task(void const * argument);
+void idle_task(void const * argument);
 
 extern void MX_USB_DEVICE_Init(void);
 void MX_FREERTOS_Init(void); /* (MISRA C 2004 rule 8.1) */
@@ -140,159 +132,50 @@ void MX_FREERTOS_Init(void) {
   /* USER CODE END RTOS_QUEUES */
 
   /* Create the thread(s) */
-  /* definition and creation of TEST */
-  osThreadDef(TEST, test_task, osPriorityNormal, 0, 128);
-  TESTHandle = osThreadCreate(osThread(TEST), NULL);
-
-  /* definition and creation of GIMBAL */
-  osThreadDef(GIMBAL, Gimbal_task, osPriorityHigh, 0, 512);
-  GIMBALHandle = osThreadCreate(osThread(GIMBAL), NULL);
-
-  /* definition and creation of CHASSIS */
-  osThreadDef(CHASSIS, Chassis_task, osPriorityBelowNormal, 0, 512);
-  CHASSISHandle = osThreadCreate(osThread(CHASSIS), NULL);
-
-  /* definition and creation of SHOOT */
-  osThreadDef(SHOOT, Shoot_task, osPriorityNormal, 0, 512);
-  SHOOTHandle = osThreadCreate(osThread(SHOOT), NULL);
-
-  /* definition and creation of MONITOR */
-  osThreadDef(MONITOR, Monitor_task, osPriorityBelowNormal, 0, 128);
-  MONITORHandle = osThreadCreate(osThread(MONITOR), NULL);
-
-  /* definition and creation of PRINT */
-  osThreadDef(PRINT, Print_task, osPriorityIdle, 0, 1024);
-  PRINTHandle = osThreadCreate(osThread(PRINT), NULL);
+  /* definition and creation of idle */
+  osThreadDef(idle, idle_task, osPriorityIdle, 0, 128);
+  idleHandle = osThreadCreate(osThread(idle), NULL);
 
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
-    osThreadDef(cali, calibrate_task, osPriorityNormal, 0, 512);
+    osThreadDef(cali, calibrate_task, osPriorityLow, 0, 512);
     calibrate_tast_handle = osThreadCreate(osThread(cali), NULL);
 
-    osThreadDef(DETECT, detect_task, osPriorityNormal, 0, 256);
-    detect_handle = osThreadCreate(osThread(DETECT), NULL);
+    osThreadDef(detect, detect_task, osPriorityLow, 0, 256);
+    detect_handle = osThreadCreate(osThread(detect), NULL);
 
-    osThreadDef(imuTask, INS_task, osPriorityRealtime, 0, 1024);
-    imuTaskHandle = osThreadCreate(osThread(imuTask), NULL);
+    osThreadDef(imu, INS_task, osPriorityRealtime, 0, 1024);
+    imuTaskHandle = osThreadCreate(osThread(imu), NULL);
 
-    osThreadDef(led, led_RGB_flow_task, osPriorityNormal, 0, 128);
+    osThreadDef(led, led_RGB_flow_task, osPriorityLow, 0, 128);
     led_RGB_flow_handle = osThreadCreate(osThread(led), NULL);
 
-    osThreadDef(adc, adc_task, osPriorityNormal, 0, 128);
+    osThreadDef(adc, adc_task, osPriorityLow, 0, 128);
     adc_handle = osThreadCreate(osThread(adc), NULL);
 
+    RobotTaskInit();
   /* USER CODE END RTOS_THREADS */
 
 }
 
-/* USER CODE BEGIN Header_test_task */
+/* USER CODE BEGIN Header_idle_task */
 /**
-  * @brief  Function implementing the test thread.
-  * @param  argument: Not used 
+  * @brief  Function implementing the IDLE thread.
+  * @param  argument: Not used
   * @retval None
   */
-/* USER CODE END Header_test_task */
-__weak void test_task(void const * argument)
+/* USER CODE END Header_idle_task */
+__weak void idle_task(void const * argument)
 {
   /* init code for USB_DEVICE */
   MX_USB_DEVICE_Init();
-  /* USER CODE BEGIN test_task */
+  /* USER CODE BEGIN idle_task */
   /* Infinite loop */
   for(;;)
   {
     osDelay(1);
   }
-  /* USER CODE END test_task */
-}
-
-/* USER CODE BEGIN Header_Gimbal_task */
-/**
-* @brief Function implementing the Task01 thread.
-* @param argument: Not used
-* @retval None
-*/
-/* USER CODE END Header_Gimbal_task */
-__weak void Gimbal_task(void const * argument)
-{
-  /* USER CODE BEGIN Gimbal_task */
-  /* Infinite loop */
-  for(;;)
-  {
-    osDelay(1);
-  }
-  /* USER CODE END Gimbal_task */
-}
-
-/* USER CODE BEGIN Header_Chassis_task */
-/**
-* @brief Function implementing the Task02 thread.
-* @param argument: Not used
-* @retval None
-*/
-/* USER CODE END Header_Chassis_task */
-__weak void Chassis_task(void const * argument)
-{
-  /* USER CODE BEGIN Chassis_task */
-  /* Infinite loop */
-  for(;;)
-  {
-    osDelay(1);
-  }
-  /* USER CODE END Chassis_task */
-}
-
-/* USER CODE BEGIN Header_Shoot_task */
-/**
-* @brief Function implementing the Task03 thread.
-* @param argument: Not used
-* @retval None
-*/
-/* USER CODE END Header_Shoot_task */
-__weak void Shoot_task(void const * argument)
-{
-  /* USER CODE BEGIN Shoot_task */
-  /* Infinite loop */
-  for(;;)
-  {
-    osDelay(1);
-  }
-  /* USER CODE END Shoot_task */
-}
-
-/* USER CODE BEGIN Header_Monitor_task */
-/**
-* @brief Function implementing the Task05 thread.
-* @param argument: Not used
-* @retval None
-*/
-/* USER CODE END Header_Monitor_task */
-__weak void Monitor_task(void const * argument)
-{
-  /* USER CODE BEGIN Monitor_task */
-  /* Infinite loop */
-  for(;;)
-  {
-    osDelay(1);
-  }
-  /* USER CODE END Monitor_task */
-}
-
-/* USER CODE BEGIN Header_Print_task */
-/**
-* @brief Function implementing the Task06 thread.
-* @param argument: Not used
-* @retval None
-*/
-/* USER CODE END Header_Print_task */
-__weak void Print_task(void const * argument)
-{
-  /* USER CODE BEGIN Print_task */
-  /* Infinite loop */
-  for(;;)
-  {
-    osDelay(1);
-  }
-  /* USER CODE END Print_task */
+  /* USER CODE END idle_task */
 }
 
 /* Private application code --------------------------------------------------*/

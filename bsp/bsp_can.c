@@ -63,18 +63,18 @@ static void CANFilter_Enable(CAN_HandleTypeDef* hcan)
 	
 	if (hcan->Instance == CAN1)
 	{
-	filter.FilterActivation = ENABLE;
-	filter.FilterBank = 0U;
-	filter.FilterFIFOAssignment = CAN_FILTER_FIFO0;
-	filter.FilterIdHigh = 0x0000;
-	filter.FilterIdLow = 0x0000;
-	filter.FilterMaskIdHigh = 0x0000;
-	filter.FilterMaskIdLow = 0x0000;
-	filter.FilterMode = CAN_FILTERMODE_IDMASK;
-	filter.FilterScale = CAN_FILTERSCALE_32BIT;
-	filter.SlaveStartFilterBank = 14;
-	
-	HAL_CAN_ConfigFilter(&hcan1, &filter);
+    filter.FilterActivation = ENABLE;
+    filter.FilterBank = 0U;
+    filter.FilterFIFOAssignment = CAN_FILTER_FIFO0;
+    filter.FilterIdHigh = 0x0000;
+    filter.FilterIdLow = 0x0000;
+    filter.FilterMaskIdHigh = 0x0000;
+    filter.FilterMaskIdLow = 0x0000;
+    filter.FilterMode = CAN_FILTERMODE_IDMASK;
+    filter.FilterScale = CAN_FILTERSCALE_32BIT;
+    filter.SlaveStartFilterBank = 14;
+    
+    HAL_CAN_ConfigFilter(&hcan1, &filter);
 	}
 	if(hcan->Instance == CAN2)
 	{
@@ -115,42 +115,33 @@ static void CANFilter_Enable(CAN_HandleTypeDef* hcan)
  */
 uint8_t CANTx_SendCurrent(CAN_HandleTypeDef* Target_hcan, uint32_t id, int16_t current1, int16_t current2, int16_t current3, int16_t current4)
 {
-    //声明存储发送数据的数组
-    uint8_t TX_message[8] = {0};
-    //定义 CAN 的发送消息句柄
-    CAN_TxHeaderTypeDef CanTxHeader;
-    //定义发送邮箱
-    uint32_t TX_MailBOX = CAN_TX_MAILBOX0;
+  //声明存储发送数据的数组
+  uint8_t TX_message[8] = {0};
+  //定义 CAN 的发送消息句柄
+  CAN_TxHeaderTypeDef CanTxHeader;
+  //定义发送邮箱
+  uint32_t TX_MailBOX = CAN_TX_MAILBOX0;
 
-    //配置 CAN 的发送消息句柄
-    CanTxHeader.StdId = id;
-    CanTxHeader.IDE = CAN_ID_STD;
-    CanTxHeader.RTR = CAN_RTR_DATA;
-    CanTxHeader.DLC = 0x08;
+  //配置 CAN 的发送消息句柄
+  CanTxHeader.StdId = id;
+  CanTxHeader.IDE = CAN_ID_STD;
+  CanTxHeader.RTR = CAN_RTR_DATA;
+  CanTxHeader.DLC = 0x08;
 
-    TX_message[0] = (unsigned char)(current1 >> 8);
-    TX_message[1] = (unsigned char)current1;
-    TX_message[2] = (unsigned char)(current2 >> 8);
-    TX_message[3] = (unsigned char)current2;
-    TX_message[4] = (unsigned char)(current3 >> 8);
-    TX_message[5] = (unsigned char)current3;
-    TX_message[6] = (unsigned char)(current4 >> 8);
-    TX_message[7] = (unsigned char)current4;
-//	if(HAL_CAN_AddTxMessage(&hcan2, &CanTxHeader, TX_message, &TX_MailBOX)!=HAL_OK)
-//	//if(HAL_CAN_IsTxMessagePending(&hcan2, TX_MailBOX)!=0)
-//	{
-//		printf("error\r\n");
-//	}
-//	else
-//	{
-//		printf("success\r\n");
-//	}
-    //将发送的信息添加到信箱，之后发送
-    if(HAL_CAN_AddTxMessage(Target_hcan, &CanTxHeader, TX_message, &TX_MailBOX) != HAL_OK)
-    {
-        return 1;
-    }
-    return 0;
+  TX_message[0] = (unsigned char)(current1 >> 8);
+  TX_message[1] = (unsigned char)current1;
+  TX_message[2] = (unsigned char)(current2 >> 8);
+  TX_message[3] = (unsigned char)current2;
+  TX_message[4] = (unsigned char)(current3 >> 8);
+  TX_message[5] = (unsigned char)current3;
+  TX_message[6] = (unsigned char)(current4 >> 8);
+  TX_message[7] = (unsigned char)current4;
+
+  //将发送的信息添加到信箱，之后发送
+  uint8_t can_state=0;
+  can_state = HAL_CAN_AddTxMessage(Target_hcan, &CanTxHeader, TX_message, &TX_MailBOX);
+
+  return can_state;
 }
 /**
  * @brief 发送数据到CAN
@@ -159,7 +150,7 @@ uint8_t CANTx_SendCurrent(CAN_HandleTypeDef* Target_hcan, uint32_t id, int16_t c
  * @param id CAN-id
  * @param data 存放数据的数组，长度为8
  */
-void CAN_Send_bytes(CAN_HandleTypeDef *hcan, uint32_t id, uint8_t data[8])
+uint8_t CAN_Send_bytes(CAN_HandleTypeDef *hcan, uint32_t id, uint8_t data[8])
 {
 	CAN_TxHeaderTypeDef CanTxHeader;
 	s_CAN_Message tx_message;
@@ -179,7 +170,11 @@ void CAN_Send_bytes(CAN_HandleTypeDef *hcan, uint32_t id, uint8_t data[8])
 	tx_message.Data[6] = data[6];
 	tx_message.Data[7] = data[7];
 
-	HAL_CAN_AddTxMessage(hcan, &CanTxHeader, tx_message.Data, &send_mail_box);
+  //将发送的信息添加到信箱，之后发送
+  uint8_t can_state=0;
+  can_state = HAL_CAN_AddTxMessage(hcan, &CanTxHeader, tx_message.Data, &send_mail_box);
+
+  return can_state;
 }
 
 

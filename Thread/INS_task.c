@@ -281,21 +281,23 @@ void INS_task(void const *pvParameters)
         // yawSpd_buff[17]=yawSpd_buff[16];
         // yawSpd_buff[16]=yawSpd_buff[15];
         // yawSpd_buff[15]=yawSpd_buff[14];
-        yawSpd_buff[14]=yawSpd_buff[13];
-        yawSpd_buff[13]=yawSpd_buff[12];
-        yawSpd_buff[12]=yawSpd_buff[11];
-        yawSpd_buff[11]=yawSpd_buff[10];
-        yawSpd_buff[10]=yawSpd_buff[9];
-				yawSpd_buff[9]=yawSpd_buff[8];
-				yawSpd_buff[8]=yawSpd_buff[7];
-				yawSpd_buff[7]=yawSpd_buff[5];
-				yawSpd_buff[6]=yawSpd_buff[5];
-				yawSpd_buff[5]=yawSpd_buff[4];
-				yawSpd_buff[4]=yawSpd_buff[3];
-				yawSpd_buff[3]=yawSpd_buff[2];
-				yawSpd_buff[2]=yawSpd_buff[1];
-				yawSpd_buff[1]=yawSpd_buff[0];
-				yawSpd_buff[0]=IMU_All_Value.yaw.yawAngV*180/PI;
+
+        // yawSpd_buff[14]=yawSpd_buff[13];
+        // yawSpd_buff[13]=yawSpd_buff[12];
+        // yawSpd_buff[12]=yawSpd_buff[11];
+        // yawSpd_buff[11]=yawSpd_buff[10];
+        // yawSpd_buff[10]=yawSpd_buff[9];
+				// yawSpd_buff[9]=yawSpd_buff[8];
+				// yawSpd_buff[8]=yawSpd_buff[7];
+				// yawSpd_buff[7]=yawSpd_buff[5];
+				// yawSpd_buff[6]=yawSpd_buff[5];
+				// yawSpd_buff[5]=yawSpd_buff[4];
+				// yawSpd_buff[4]=yawSpd_buff[3];
+				// yawSpd_buff[3]=yawSpd_buff[2];
+				// yawSpd_buff[2]=yawSpd_buff[1];
+				// yawSpd_buff[1]=yawSpd_buff[0];
+				// yawSpd_buff[0]=IMU_All_Value.yaw.yawAngV*180/PI;
+        IMUDelayAssignment(&IMU_All_Value, yawSpd_buff, 14);
 
         //because no use ist8310 and save time, no use
         if(mag_update_flag &= 1 << IMU_DR_SHFITS)
@@ -306,7 +308,21 @@ void INS_task(void const *pvParameters)
 
     }
 }
-
+/**
+ * @brief 陀螺仪延迟赋值
+ * 
+ * @param imu_all_value 
+ * @param buf 
+ * @param index 
+ */
+void IMUDelayAssignment(s_IMU_all_Value*imu_all_value, float *ysw_spd_buf, uint8_t index)
+{
+  for (int8_t i = index; i < 0; i--)
+  {
+    ysw_spd_buf[i] = ysw_spd_buf[i-1];
+  }
+  ysw_spd_buf[0] = imu_all_value->yaw.yawAngV * 180/PI;
+}
 //连续陀螺仪角度数据
 void AHRSgetAngle(s_AHRS_DATA_t* finalData ,fp32 qq[3] ) 
 {

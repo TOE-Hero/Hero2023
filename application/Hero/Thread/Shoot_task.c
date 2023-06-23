@@ -24,9 +24,9 @@ void Shoot_task(void const * argument)
     while(1)
     {
 		shootLastWakeTime = xTaskGetTickCount();
+    ModeSwitch();//模式选择
 		taskENTER_CRITICAL();//中断保护
-		
-		ModeSwitch();//模式选择
+
 		Shoot_Move();
 		
 		taskEXIT_CRITICAL();

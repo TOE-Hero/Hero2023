@@ -42,18 +42,17 @@ chassisMove_t   s_chassisMove;
 uint8_t         capExpect_txBuff[8];
 //底盘电机目标输出电流数组
 int16_t         motor[4];
-
 /************************** static declaration ***********************************/
 //小陀螺或者底盘分离时通过角度计算的sin
-static float   sin_Gimbal_ang=0.0f;
+static float   	sin_Gimbal_ang=0.0f;
 //小陀螺或者底盘分离时通过角度计算的cos
-static float   cos_Gimbal_ang=0.0f;
+static float   	cos_Gimbal_ang=0.0f;
 //目标前进速度，用来被赋值遥控器值与键盘按下后的速度
-static int     Target_Vx=0;
+static int     	Target_Vx=0;
 //目标后退速度，用来被赋值遥控器值与键盘按下后的速度
-static int     Target_Vy=0;
+static int     	Target_Vy=0;
 //与YAW轴所定的正前方刻度相距离的刻度值转化为角度
-static float   opposite_ang=0;
+static float   	opposite_ang=0;
 /************************** extern declaration ***********************************/
 extern s_robo_Mode_Setting robot_Mode;
 extern uint8_t             RobotId;
@@ -482,7 +481,7 @@ void Chassis_Move(void)
 	chassis_power_control(&s_chassisMove, motor);//功率控制
 	
 	//CANTx_SendCurrent(&hcan1,0x200, RF_motor.out_current , LF_motor.out_current , LB_motor.out_current , RB_motor.out_current );
-	CANTx_SendCurrent(&hcan1,0x200, motor[0] , motor[1] , motor[2] , motor[3] );
+	can_send_state.chassis = CANTx_SendCurrent(&hcan1,0x200, motor[0] , motor[1] , motor[2] , motor[3] );
 
 }
 

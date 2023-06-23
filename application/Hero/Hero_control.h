@@ -6,6 +6,7 @@
 #include <math.h>
 
 #include "hero_can.h"
+#include "ConfigHeroTask.h"
 #include "Chassis.h"
 #include "Gimbal.h"
 #include "Shoot.h"

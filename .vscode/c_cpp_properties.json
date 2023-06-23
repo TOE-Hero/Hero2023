@@ -25,6 +25,7 @@
                 "${workspaceFolder}/application/Hero/bsp",
                 "${workspaceFolder}/application/Hero/Mode",
                 "${workspaceFolder}/application/Hero/Thread",
+                "${workspaceFolder}/application/Hero/Thread/ConfigTask",
                 "${workspaceFolder}/application/Hero/Variables",
                 "${workspaceFolder}/application/Hero/Devices"
             ],

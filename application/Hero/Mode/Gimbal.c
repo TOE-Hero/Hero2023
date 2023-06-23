@@ -92,43 +92,13 @@ float                     	pit_offset_ang = 0.0f;//pit轴云台在使用陀螺�
 float 						Gyro_up_lim = 0.0f;//pit轴云台在使用陀螺仪角度作外环抬头最大值
 float 						Gyro_down_lim = 0.0f;//pit轴云台在使用陀螺仪角度作外环低头最大值
 float 						Gyro_mid = 0.0f;//pit轴云台在使用陀螺仪角度作外环，角度中值
-int32_t                    Vedio_transmission_limit_up = 0;
-int32_t                    Vedio_transmission_limit_down = 0;
+int32_t                     Vedio_transmission_limit_up = 0;
+int32_t                     Vedio_transmission_limit_down = 0;
+uint8_t                     Vedio_transmission_init_flag = 0;
 /**************************** static variable ************************************/
-// static float Gyro_up_lim = 0;
-// static float Gyro_down_lim = 0;
-// static float Gyro_mid = 0;
-uint8_t Vedio_transmission_init_flag = 0;
+
 /***************************** extern declaration ******************************/
-// extern s_motor_data_t      	YAW_motor;//YAW轴电机信息结构体
-// extern s_motor_data_t      	YAW_motor_imu;//YAW轴用陀螺仪完全控制结构体
-// extern s_motor_data_t      	YAW_motor_encode;//YAW用编码器值控制位置环，陀螺仪角速度控制速度环结构体
-// extern s_pid_absolute_t   	YAW_motor_pid_pos;//云台pit轴双环
-// extern s_pid_absolute_t   	YAW_motor_pid_speed;
-// extern s_pid_absolute_t    	YAW_motor_pid_pos_imu;//云台yaw轴陀螺仪双环
-// extern s_pid_absolute_t    	YAW_motor_pid_speed_imu;
-// extern s_pid_absolute_t    	YAW_motor_pid_pos_encode;//YAW轴编码器控制PID位置环结构体
-// extern s_pid_absolute_t    	YAW_motor_pid_speed_encode;//YAW轴编码器控制PID速度环结构体
-// extern s_pid_absolute_t    	YAW_motor_pid_pos_imu_vis;
-// extern s_pid_absolute_t    	YAW_motor_pid_speed_imu_vis;
 
-// extern s_motor_data_t      	PIT_motor;//PIT轴电机信息结构体
-// extern s_motor_data_t      	PIT_motor_imu;//PIT轴用陀螺仪完全控制结构体
-// extern s_pid_absolute_t    	PIT_motor_pid_pos;//云台pit轴双环
-// extern s_pid_absolute_t    	PIT_motor_pid_speed;
-// extern s_pid_absolute_t    	PIT_motor_pid_pos_imu;
-// extern s_pid_absolute_t    	PIT_motor_pid_speed_imu;
-// extern s_pid_absolute_t    	PIT_motor_pid_pos_imu_vis;
-// extern s_pid_absolute_t    	PIT_motor_pid_speed_imu_vis;
-
-// extern s_motor_data_t      Camera_motor;//摄像头调整使用的2006
-// extern s_pid_absolute_t    Camera_motor_pid_pos;//摄像头2006双环
-// extern s_pid_absolute_t    Camera_motor_pid_speed;
-
-// extern s_robo_Mode_Setting 	robot_Mode;//机器人模式结构体内嵌枚举
-// extern su_PC_DATA          	pcData;//经过处理的PC数据
-// extern chassisMove_t       	s_chassisMove;//底盘信息,包括超级电容
-// extern s_FPS_monitor		finalFps;//最终帧率计算值
 /*******************************************************************************/
 
 /**
@@ -847,18 +817,17 @@ void Gimbal_Move()
     }
     /********************************************************* Output current ****************************************************************/\
 #if	ROBOT_ID == SUN
-    CANTx_SendCurrent(&hcan1,0x1FF, YAW_motor.out_current, Camera_motor.out_current, 0, 0 );   //YAW轴发送电流
+    can_send_state.yaw = (&hcan1,0x1FF, YAW_motor.out_current, Camera_motor.out_current, 0, 0 );   //YAW轴发送电流
 #endif
 #if	ROBOT_ID == MOON
-    CANTx_SendCurrent(&hcan1,0x1FF, YAW_motor.out_current, 0, 0, 0 );   //YAW轴发送电流
+    can_send_state.yaw = CANTx_SendCurrent(&hcan1,0x1FF, YAW_motor.out_current, 0, 0, 0 );   //YAW轴发送电流
 #endif
-
-#if	ROBOT_ID == SUN
-    CANTx_SendCurrent(&hcan2,0x1FF, PIT_motor.out_current, 0, 0, 0 );   //PIT轴发送电流,Camera电流
+#if	ROBOT_ID == SUN   //PIT轴发送电流,Camera电流
+    can_send_state.pit = (&hcan2,0x1FF, PIT_motor.out_current, 0, 0, 0 );
 #endif
 #if	ROBOT_ID == MOON
 #if PIT_MOTOR==GM6020
-    CANTx_SendCurrent(&hcan2,0x1FF, PIT_motor.out_current, 0, 0, 0 );
+    can_send_state.pit = CANTx_SendCurrent(&hcan2,0x1FF, PIT_motor.out_current, 0, 0, 0 );
 #endif
 #endif
 

@@ -12,7 +12,7 @@ typedef struct{
 void MY_CAN_Init(void);
 void CAN_Enable(CAN_HandleTypeDef *Target_hcan);
 uint8_t CANTx_SendCurrent(CAN_HandleTypeDef *Target_hcan, uint32_t id, int16_t current1, int16_t current2, int16_t current3, int16_t current4);
-void CAN_Send_bytes(CAN_HandleTypeDef *hcan,uint32_t id,uint8_t data[8]);
+uint8_t CAN_Send_bytes(CAN_HandleTypeDef *hcan, uint32_t id, uint8_t data[8]);
 
 #endif  /* BSP_CAN_H */
 

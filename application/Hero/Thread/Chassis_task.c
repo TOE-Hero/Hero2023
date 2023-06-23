@@ -33,24 +33,24 @@ void Chassis_task(void const * argument)
 		chassisLastWakeTime = xTaskGetTickCount();
 		taskENTER_CRITICAL();
 		ModeSwitch();//模式选择
-		 if(gyro_flag)
-		 {
-			Chassis_Move();
-		 }
-		 else
-		 {
-			//电机发送0电流
-			CANTx_SendCurrent(&hcan1,0x200, 0 , 0 , 0 , 0 );
-		 }
+		if(gyro_flag)
+		{
+		Chassis_Move();
+		}
+		else
+		{
+		// 电机发送0电流
+		CANTx_SendCurrent(&hcan1,0x200, 0 , 0 , 0 , 0 );
+		}
+		// 超级电容发送
 		if(SuperCAP_CAN_Send_Count % 10 == 0)
-		 {
-			CAN_Send_bytes(&hcan1,0x101,capExpect_txBuff);//给电容控制板发送控制信息
-			SuperCAP_CAN_Send_Count = 0;
-		 }
+		{
+		CAN_Send_bytes(&hcan1,0x101,capExpect_txBuff);//给电容控制板发送控制信息
+		SuperCAP_CAN_Send_Count = 0;
+		}
 		SuperCAPDataGoodCount++;
 		if(SuperCAPDataGoodCount == 200)
 		{
-
 			SuperCAPDataGoodCount = 0;
 		}
 		taskEXIT_CRITICAL();
