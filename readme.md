@@ -211,7 +211,7 @@ PS: 上传git时不需要上传build文件夹，在初始化仓库时就需要�
 /build
 # 忽略一切.log后缀的文件
 *.log
-# 忽略cortex-debug.registers.state.json文件,一个垃圾中间文件，没必要上传
+# 忽略cortex-debug.registers.state.json文件,一个中间文件，没必要上传
 .vscode/.cortex-debug.registers.state.json
 ```
 
