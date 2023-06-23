@@ -10,7 +10,6 @@
 #include "bsp_remote.h"
 #include "INS_task.h"
 #include "nuc_interface.h"
-#include "bsp_timer.h"
 
 #include "Hero_control.h"
 /*********************** Debug ***********************/

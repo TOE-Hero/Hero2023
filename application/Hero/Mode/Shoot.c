@@ -8,7 +8,6 @@
 #include "dji_motor.h"
 #include "bsp_remote.h"
 #include "math.h"
-#include "bsp_timer.h"
 #include "printf.h"
 #include "RM_Judge.h"
 

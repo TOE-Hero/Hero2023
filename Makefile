@@ -119,7 +119,7 @@ $(wildcard ./application/$(ROBOT)/bsp/*.c) \
 $(wildcard ./application/$(ROBOT)/Mode/*.c) \
 $(wildcard ./application/$(ROBOT)/Thread/*.c) \
 $(wildcard ./application/$(ROBOT)/Variables/*.c) \
-$(wildcard ./application/$(ROBOT)/Vision/*.c)
+$(wildcard ./application/$(ROBOT)/Devices/*.c)
 
 # ASM sources
 ASM_SOURCES =  \
@@ -205,7 +205,7 @@ C_INCLUDES =  \
 -Iapplication/$(ROBOT)/Mode \
 -Iapplication/$(ROBOT)/Thread \
 -Iapplication/$(ROBOT)/Variables \
--Iapplication/$(ROBOT)/Vision
+-Iapplication/$(ROBOT)/Devices
 
 # compile gcc flags
 ASFLAGS = $(MCU) $(AS_DEFS) $(AS_INCLUDES) $(OPT) -Wall -fdata-sections -ffunction-sections

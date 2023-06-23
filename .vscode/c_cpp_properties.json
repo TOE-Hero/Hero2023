@@ -26,7 +26,7 @@
                 "${workspaceFolder}/application/Hero/Mode",
                 "${workspaceFolder}/application/Hero/Thread",
                 "${workspaceFolder}/application/Hero/Variables",
-                "${workspaceFolder}/application/Hero/Vision"
+                "${workspaceFolder}/application/Hero/Devices"
             ],
             "defines": [
                 "_DEBUG",

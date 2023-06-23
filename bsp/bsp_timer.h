@@ -1,10 +1,6 @@
-#ifndef __TIMER__
-#define __TIMER__
+#ifndef __BSP_TIMER__
+#define __BSP_TIMER__
 
 #include "main.h"
-
-void Timer_Init(void);
-extern void laser_on(void);
-extern void laser_off(void);
 
 #endif

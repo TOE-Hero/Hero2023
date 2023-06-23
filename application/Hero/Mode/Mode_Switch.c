@@ -4,7 +4,7 @@
 #include "bsp_remote.h"
 #include "bsp_can.h"
 #include "bsp_usart.h"
-#include "bsp_timer.h"
+#include "laser.h"
 #include "STMGood.h"
 #include "dji_motor.h"
 #include "pid.h"
@@ -82,17 +82,17 @@ static void laser_ctrl(void)
 {
 	if((robot_Mode.gimbalMode == G_FULL_VISION)||(robot_Mode.gimbalMode == G_HALF_VISION)) 
 	{
-		laser_off();
+		LaserOff();
 	}
 	else if(robot_Mode.shootMode == S_SWING)
 	{
 		// 如果两个摩擦轮帧率正常，并且摩擦轮的返回的平均速度大于摩擦轮目标速度的1/2，打开激光（前提是摩擦轮处于旋转模式）
 		if(average_speed > fric_target_speed * 0.5 && finalFps.fric_l > 800 && finalFps.fric_r > 800)
-			laser_on();
+			LaserOn();
 	}
 	else 
 	{
-		laser_off();
+		LaserOff();
 	}
 }
 
