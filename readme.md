@@ -12,7 +12,7 @@ VsCode工程缺点：
 
 所以建议使用JLink，它官方自带的Ozone非常好用（比keil好用），弥补了vscode不能debug的缺陷。
 
-如果你想在Ozone中实时查看FreeRTOS中每个任务占据的内存大小的话，需要你在 Inc\FreeRTOSConfig.h 文件中增加
+如果你想在Ozone中实时查看FreeRTOS中每个任务占据的内存大小的话，需要你在 `Inc\FreeRTOSConfig.h` 文件中增加
 
 ```C
    #define configRECORD_STACK_HIGH_ADDRESS          1
