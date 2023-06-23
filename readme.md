@@ -97,7 +97,7 @@ VsCode工程缺点：
 
 文件夹结构应该是：
 
-```C
+```txt
    Infantry:.
    │ bsp
    | Mode
