@@ -1,4 +1,4 @@
-# 大连交通大学2023英雄电控程序开源
+# 大连交通大学TOE战队RoboMaster2023英雄电控程序开源
 
 本人环境配置教程：<https://robomaster.ones.pro/wiki/#/team/T6gsU22v/space/oqJvJWK4/page/2okLKyCo>
 
