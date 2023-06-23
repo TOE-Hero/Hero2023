@@ -323,7 +323,13 @@ void IMUDelayAssignment(s_IMU_all_Value*imu_all_value, float *ysw_spd_buf, uint8
   }
   ysw_spd_buf[0] = imu_all_value->yaw.yawAngV * 180/PI;
 }
-//连续陀螺仪角度数据
+
+/**
+ * @brief 将陀螺仪角度变为连续
+ * 
+ * @param finalData 
+ * @param qq 
+ */
 void AHRSgetAngle(s_AHRS_DATA_t* finalData ,fp32 qq[3] ) 
 {
     static uint8_t isImuNotFirst = 0;
@@ -355,15 +361,16 @@ void AHRSgetAngle(s_AHRS_DATA_t* finalData ,fp32 qq[3] )
 	rollLast  = finalData->roll;
 	pitchLast = finalData->pitch;
 }
-	/**
-  * @brief  将数据整合到一个全局结构体变量中
-  * @param  s_IMU_all_Value*all_value
-  * @param  s_AHRS_DATA_t*IMU_ang
-  * @param  float gyro0[3]
-  * @param  float accel0[3]
-  * @param  float *temperate0
-  * @retval void
-  */
+
+/**
+* @brief  将数据整合到一个全局结构体变量中
+* @param  s_IMU_all_Value*all_value
+* @param  s_AHRS_DATA_t*IMU_ang
+* @param  float gyro0[3]
+* @param  float accel0[3]
+* @param  float *temperate0
+* @retval void
+*/
 void IMU_receive_all_Value(s_IMU_all_Value*all_value , s_AHRS_DATA_t*IMU_ang , float gyro0[3] , float accel0[3], float *temperate0)
 {
 	all_value->accel.x = accel0[0];
