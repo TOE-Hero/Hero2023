@@ -4,7 +4,6 @@
 #include "bsp_remote.h"
 #include "bsp_can.h"
 #include "bsp_usart.h"
-#include "laser.h"
 #include "STMGood.h"
 #include "dji_motor.h"
 #include "pid.h"

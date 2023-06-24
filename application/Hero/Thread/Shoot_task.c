@@ -1,15 +1,11 @@
 #include "Shoot_task.h"
-
 #include <cmsis_os.h>
 #include <main.h>
 #include "bsp_can.h"
-#include "pid.h"
-#include "STMGood.h"
-#include "bsp_usart.h"
-#include "dji_motor.h"
-#include "bsp_remote.h"
-#include "math.h"
+#include "struct_typedef.h"
+#include "Mode_Switch.h"
 #include "Shoot.h"
+
 
 /**
   * @brief          射击任务,2速度环m3508 & 1串级环m3508(1:19)

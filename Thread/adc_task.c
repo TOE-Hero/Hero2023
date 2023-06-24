@@ -5,6 +5,7 @@
 
 fp32    chip_voltage;//电池电压
 fp32    chip_temperature;//片内温度
+
 /**
  * @brief adc检测电池电压和片内温度任务
  * 

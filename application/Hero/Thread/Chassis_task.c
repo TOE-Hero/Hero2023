@@ -1,21 +1,17 @@
-#include "Chassis_task.h"
 #include <cmsis_os.h>
 #include <main.h>
+#include "struct_typedef.h"
 #include "bsp_can.h"
-#include "STMGood.h"
-#include "bsp_usart.h"
-#include "dji_motor.h"
-#include "bsp_remote.h"
-#include "math.h"
-#include "pid.h"
 #include "INS_task.h"
 #include "Mode_Switch.h"
 #include "Chassis.h"
 /*************************** extern declaration ***********************************/
-extern volatile uint8_t	gyro_flag;//陀螺仪标志位
-extern chassisMove_t 	s_chassisMove;
-extern uint8_t         	capExpect_txBuff[8];
+
+extern volatile uint8_t			gyro_flag;//陀螺仪标志位
+extern chassisMove_t 			s_chassisMove;
+extern uint8_t         			capExpect_txBuff[8];
 /**********************************************************************************/
+
 /**
   * @brief          底盘任务
   * @param[in]      argument: NULL
@@ -24,9 +20,10 @@ extern uint8_t         	capExpect_txBuff[8];
 void Chassis_task(void const * argument)
 {
 /******************************** static variable **********************************/
-	static TickType_t chassisLastWakeTime;
-	static uint32_t SuperCAP_CAN_Send_Count;//控制给电容控制板发送CAN的帧率
-	static uint32_t SuperCAPDataGoodCount;
+
+static TickType_t 	chassisLastWakeTime;
+static uint32_t 	SuperCAP_CAN_Send_Count;//控制给电容控制板发送CAN的帧率
+static uint32_t 	SuperCAPDataGoodCount;
 /**********************************************************************************/
     while(1)
     {

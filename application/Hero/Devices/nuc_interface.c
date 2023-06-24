@@ -6,16 +6,16 @@
  * @Author: Rio
  ******************************************************************************
  */
+#include <string.h>
+#include <math.h>
+#include <stdbool.h>
 #include "nuc_interface.h"
 #include "usart.h"
 #include "bsp_usart.h"
 #include "user_lib.h"
 #include "CRC_Check.h"
-#include "kalman_filter.h"
 #include "STMGood.h"
 #include "pid.h"
-#include <string.h>
-#include <math.h>
 #include "usbd_cdc_if.h"
 
 #include "Hero_control.h"

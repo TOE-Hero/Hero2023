@@ -2,7 +2,5 @@
 #define GIMBAL_TASK_H
 
 
-#include "struct_typedef.h"
 
-
-#endif
+#endif // GIMBAL_TASK_H

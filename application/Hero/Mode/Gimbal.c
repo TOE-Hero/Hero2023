@@ -9,7 +9,6 @@
 #include "dji_motor.h"
 #include "bsp_remote.h"
 #include "INS_task.h"
-#include "nuc_interface.h"
 
 #include "Hero_control.h"
 /*********************** Debug ***********************/
@@ -817,13 +816,13 @@ void Gimbal_Move()
     }
     /********************************************************* Output current ****************************************************************/\
 #if	ROBOT_ID == SUN
-    can_send_state.yaw = (&hcan1,0x1FF, YAW_motor.out_current, Camera_motor.out_current, 0, 0 );   //YAW轴发送电流
+    can_send_state.yaw = CANTx_SendCurrent(&hcan1,0x1FF, YAW_motor.out_current, Camera_motor.out_current, 0, 0 );   //YAW轴发送电流
 #endif
 #if	ROBOT_ID == MOON
     can_send_state.yaw = CANTx_SendCurrent(&hcan1,0x1FF, YAW_motor.out_current, 0, 0, 0 );   //YAW轴发送电流
 #endif
 #if	ROBOT_ID == SUN   //PIT轴发送电流,Camera电流
-    can_send_state.pit = (&hcan2,0x1FF, PIT_motor.out_current, 0, 0, 0 );
+    can_send_state.pit = CANTx_SendCurrent(&hcan2,0x1FF, PIT_motor.out_current, 0, 0, 0 );
 #endif
 #if	ROBOT_ID == MOON
 #if PIT_MOTOR==GM6020

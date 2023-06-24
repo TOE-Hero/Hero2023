@@ -1,11 +1,11 @@
 #ifndef MONITOR_H
 #define MONITOR_H
 
-#include "FreeRTOS.h"
-#include "task.h"
-#include "main.h"
-#include "cmsis_os.h"
-#include "Mode_Switch.h"
+// #include "FreeRTOS.h"
+// #include "task.h"
+// #include "main.h"
+// #include "cmsis_os.h"
+// #include "Mode_Switch.h"
 //FPS结构体
 typedef struct
 {
@@ -25,12 +25,14 @@ typedef struct
 	uint16_t cap_board;
 	uint16_t pc;
 } s_FPS_monitor;
-/*********************** extern ***********************/
+/*--------------------- extern -----------------------*/
+
 extern s_FPS_monitor	Fps;//每个要检查FPS的地方++
 extern s_FPS_monitor	startFps;//每秒计算FPS中间值
 extern s_FPS_monitor	finalFps;//最终帧率计算值
 
-/******************** function declaration ********************/
+/*--------------- function declaration ---------------*/
+
 void start_Monitor(void);
 void final_Monitor(void);
 uint8_t isProcessOn(void);

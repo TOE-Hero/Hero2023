@@ -3,7 +3,8 @@
 
 #include "dji_motor.h"
 
-/***************** function declaration *******************/
+/*--------------- function declaration ---------------*/
+
 void Shoot_Init(void);
 void Shoot_Move(void);
 

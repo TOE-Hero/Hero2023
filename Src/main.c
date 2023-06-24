@@ -44,7 +44,6 @@
 #include "bsp_remote.h"
 #include "pid.h"
 #include "STMGood.h"
-#include "laser.h"
 
 #include "robot.h"
 
@@ -135,12 +134,11 @@ int main(void)
 delay_init();//RM C板例程中延时函数初始
 cali_param_init();//RM C板例程中自检结构体初始化
 MX_USB_DEVICE_Init();//USB初始化，如果使用了freertos，那么它会在空闲任务中，想要使能USB要拎出来初始化才能用
-MY_CAN_Init();//CAN初始�?
-MY_USART_Init();//串口初始�?
+MY_CAN_Init();//CAN初始�?
+MY_USART_Init();//串口初始�?
 remote_control_init();//遥控器初始化
-LaserInit();//红外�?光初始化，主要是定时器初始化
 
-HAL_Delay(500);//延时是由于防止can路刚上电，数据不稳定，防止疯�?
+HAL_Delay(500);//延时是由于防止can路刚上电，数据不稳定，防止疯�?
 
 RobotInit();
 

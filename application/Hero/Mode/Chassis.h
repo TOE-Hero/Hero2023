@@ -43,7 +43,8 @@ typedef struct
 /***************** extern declaration *******************/
 //底盘信息结构体声明
 extern chassisMove_t   s_chassisMove;
-/***************** function declaration *******************/
+/*--------------- function declaration -----------------*/
+
 void Chassis_Init(void);
 void Chassis_Move(void);
 

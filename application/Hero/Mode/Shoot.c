@@ -9,12 +9,13 @@
 #include "bsp_remote.h"
 #include "math.h"
 #include "printf.h"
-#include "RM_Judge.h"
 
 #include "Hero_control.h"
 /**************************** Debug *****************************/
+#define S_SWING_DEBUG       	0	// pid_abs_evaluation(&FIRE_L_motor_pid_speed,P1, I1, D1, 2000, 16000.0f);
+									// pid_abs_evaluation(&FIRE_R_motor_pid_speed,P1, I1, D1, 2000, 16000.0f);
 #define T_SWING_DEBUG       	0	//pid_abs_evaluation(&TRANS_motor_pid_pos,P7,0,0,0,S7);
-								//pid_abs_evaluation(&TRANS_motor_pid_speed,P8,I8,D8,0,16000.0f);
+									//pid_abs_evaluation(&TRANS_motor_pid_speed,P8,I8,D8,0,16000.0f);
 /**************************** define ****************************/
 #if	ROBOT_ID == SUN
 	#define TRANS_REDUCTION_RATIO   REDUCTION_RATIO_3508_1_19//宏定义拨弹盘电机减速比
@@ -27,7 +28,7 @@
 #if	ROBOT_ID == MOON
 	#define TRANS_REDUCTION_RATIO   REDUCTION_RATIO_3508_1_19//宏定义拨弹盘电机减速比
 	#define TRANS_STEP			    MOTOR_ONE_TURN_SCALE_3508/6*TRANS_REDUCTION_RATIO
-	#define FRI_SPD_H       	4320//4050// 16m/s弹速,一般白弹丸要比透明弹丸少70左右
+	#define FRI_SPD_H       	5000//4050// 16m/s弹速,一般白弹丸要比透明弹丸少70左右
 	#define FRI_SPD_H_LOB		4350 //4180// 16m/s弹速，吊射弹速，同上
 	#define FRI_SPD_L       	2700// 10m/s弹速
 #endif
@@ -79,6 +80,7 @@ extern s_rm_judge_shoot_data_t 	Judge_ShootData;
 
 static void ShootBall(void);//控制播弹盘电机函数
 /*********************************************************************************/
+
 /**
   * @brief          发射机构初始化
   * @param[in]      none
@@ -94,8 +96,8 @@ void Shoot_Init(void)
 	pid_abs_param_init(&TRANS_motor_pid_speed,20.0f,0.3f,0,2000,16000.0f);
 #endif
 #if	ROBOT_ID == MOON
-	pid_abs_param_init(&FIRE_L_motor_pid_speed,12.0f,0.3,0,2000,16000.0f);
-	pid_abs_param_init(&FIRE_R_motor_pid_speed,12.0f,0.3,0,2000,16000.0f);
+	pid_abs_param_init(&FIRE_L_motor_pid_speed,9.0f, 0.1, 0.0, 2000, 16000.0f);
+	pid_abs_param_init(&FIRE_R_motor_pid_speed,9.0f, 0.1, 0.0, 2000, 16000.0f);
 	pid_abs_param_init(&TRANS_motor_pid_pos,0.25f,0,0,0,1500);
 	pid_abs_param_init(&TRANS_motor_pid_speed,15.3f,0.3f,0,2000,16000.0f);
 #endif
@@ -106,7 +108,6 @@ void Shoot_Init(void)
   * @param[in]      none
   * @retval         none
   */
-
 void Shoot_Move(void)
 {
 	// Judge_ShootData.coolingheat_limit = 34400;
@@ -142,6 +143,11 @@ void Shoot_Move(void)
 		}
 		case S_SWING://摩擦轮转
 		{
+			#if S_SWING_DEBUG == 1
+			pid_abs_evaluation(&FIRE_L_motor_pid_speed,P1, I1, D1, 2000, 16000.0f);
+			pid_abs_evaluation(&FIRE_R_motor_pid_speed,P1, I1, D1, 2000, 16000.0f);
+			#endif
+			
 			//Z、X键分别用来增加和减小摩擦轮目标转速
 			if(PRESS_Z) {keyLock_Z=1;}
 			if((!PRESS_Z) && keyLock_Z==1)
@@ -262,7 +268,7 @@ void Shoot_Move(void)
 		}
 	}
 	//发送CAN2路摩擦轮与拨弹盘电流
-	can_send_state.shoot = (&hcan2,0x200, 0 , TRANS_motor.out_current , FIRE_L_motor.out_current , FIRE_R_motor.out_current );
+	can_send_state.shoot = CANTx_SendCurrent(&hcan2,0x200, 0 , TRANS_motor.out_current , FIRE_L_motor.out_current , FIRE_R_motor.out_current );
 	
 }
 

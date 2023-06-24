@@ -1,7 +1,6 @@
-#ifndef __TEST_TASK_H
-#define __TEST_TASK_H
-#include <main.h>
+#ifndef PRINT_TASK_H
+#define PRINT_TASK_H
 
 
-#endif
+#endif // PRINT_TASK_H
 

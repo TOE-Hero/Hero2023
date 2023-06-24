@@ -2,8 +2,5 @@
 #define SHOOT_TASK_H
 
 
-#include "struct_typedef.h"
-
-
-#endif
+#endif // SHOOT_TASK_H
 

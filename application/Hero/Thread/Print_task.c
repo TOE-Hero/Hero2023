@@ -10,6 +10,7 @@
 #include "INS_task.h"
 #include "printf.h"
 #include "usbd_cdc_if.h"
+#include "struct_typedef.h"
 
 #include "Hero_control.h"
 /*********************************************************** Debug ********************************************************************/
@@ -216,7 +217,7 @@ void Print_task(void const * argument)
 		}
 /*********************************************************** Firc ***********************************************************/
 		{
-		#if FRIC_BACK_SPEED_DEBUG == 1
+		#if FRIC_BACK_SPEED_DEBUG == 0
 			printf("%d,%f\n",FIRE_L_motor.back_motor_speed,FIRE_L_motor_pid_speed.PIDout);
 		#endif
 		#if SPEED_CLOSED_LOOP_DEBUG == 1

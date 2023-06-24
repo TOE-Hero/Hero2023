@@ -1,14 +1,20 @@
-#include "Monitor_task.h"
-#include "Monitor.h"
 #include "FreeRTOS.h"
 #include "bsp_buzzer.h"
 #include <cmsis_os.h>
 #include <main.h>
-/*************************** extern declaration ***********************************/
-extern s_FPS_monitor	finalFps;
-extern uint16_t fps_gimbal_task;
-int final_fps_gimbal;
-/**********************************************************************************/
+#include "struct_typedef.h"
+#include "Mode_Switch.h"
+#include "Monitor_task.h"
+#include "Monitor.h"
+
+/*------------------ extern declaration  ---------------------*/
+
+extern s_FPS_monitor		finalFps;
+extern uint16_t 			fps_gimbal_task;
+/*-------------------- global variable  ----------------------*/
+int 						final_fps_gimbal;
+/*------------------------------------------------------------*/
+
 void Monitor_task(void const * argument)
 {
   /* USER CODE BEGIN Monitor_task */

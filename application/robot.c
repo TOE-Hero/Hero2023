@@ -9,6 +9,7 @@
 void RobotInit(void)
 {
     #if _ROBOT_ == _HERO_
+    LaserInit();
     ModeInit();
     Chassis_Init();
     Shoot_Init();

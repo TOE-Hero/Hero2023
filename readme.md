@@ -24,6 +24,8 @@ VsCode工程缺点：
 
 1. 如果你要使用CubeMX重新生成程序，有可能会导致makefile清空，建议重新生成前把makefile添加bak后缀，防止被覆盖掉。
 
+   如果你在cubemx中添加了一些额外的外设(一般来讲不会，因为我基本把能打开的都打开了，你新增PWM或者GPIO都不会新增文件的)，然后使用备份的makefile去编译出错了，可以根据报错信息在makefile中添加你增加的源文件和头文件路径
+
 2. 文件夹名字中绝不可以有空格！！！
 
 3. 那些烧录工具尽量添加到系统环境变量里，否则要在`.vscode/tasks.json`中修改路径
@@ -67,7 +69,7 @@ VsCode工程缺点：
 
 咱的.c和.h文件放在同一个路径下了，单纯为了方便，因为.h文件也有好多有关配置的，方便好找就放在一起了，你可以.c一个文件夹.h一个文件夹，看个人喜好.
 
-### 0. 各种前缀./文件夹
+### 0. 前缀./文件夹
 
 * `.instruction`文件夹里面有一些说明文档和教程，有一些程序框图；
 
@@ -85,7 +87,7 @@ VsCode工程缺点：
   * `settings.json`是相对当前工作空间与系统配置不同的设置的修改；
   * `tasks.json`是比较重要的文件，这个文件放在这个文件夹是对当前工作空间生效的，用来烧录程序，编译程序等
 
-### 1. 应用层application
+### 1. ./application 里为应用层代码
 
 有一个`robot`文件用来管理不同的机器人；
 
@@ -95,20 +97,21 @@ VsCode工程缺点：
 
 文件夹结构应该是：
 
-```bash
+```txt
    Infantry:.
    │ bsp # 用来实例化can中断回调函数，一些兵种独立的can发送接口
-   | Devices # 用来控制额外设备，比如PC交互
+   | Devices # 用来控制额外设备，比如PC交互、红外激光控制、裁判系统数据
    | Mode # 主要的机器人运动控制模块，里面有各种模式
    | Thread # 线程运行
    |  └─ConfigTask # 线程管理与创建
-   | Variables # 全局变量管理
+   | Variables # 全局变量管理，如电机结构体变量、pid结构体变量、ramp结构体变量
+   | ... #你可以创建自己的文件夹，需要在 makefile 中添加 .c 文件和 .h 的路径
    └─Infantry_control.h # 用来管理上面这些文件夹的头文件，方便统一extern
 ```
 
 文件夹的结构也可以自己定义，我在这里只建立了`bsp、Mode、Thread、Variables、Devices`等模块；
 
-其中`None_robot`模块是为了在不需要机器人控制情况下，`makefile`修改`ROBOT`参数的值为这个文件夹名，就可以屏蔽机器模块；
+其中`None_robot`模块是为了在不需要机器人控制情况下，`makefile`修改`ROBOT`参数的值为这个文件夹名，就可以屏蔽机器人模块；
 
   接下来介绍模块中每个组成：
 
@@ -122,15 +125,17 @@ VsCode工程缺点：
   * `Gimbal.c`文件用来解算云台，并发送电流；
   * `Shoot.c`文件用来解算发射机构电机电流。
 
-* `Variables`主要是用来管理一些重要的全局变量，比如电机结构体变量、pid、ramp(斜坡函数)等；
+* `Variables`主要是用来管理一些重要的全局变量，比如电机结构体变量、pid、ramp(斜坡函数)等
 
 * `Devices`主要是设备控制的代码：
 
-  * `nuc_interface`主要是处理PC信息的文件，并在其中计算自瞄目标值。
+  * `nuc_interface`主要是处理PC信息的文件，并在其中计算自瞄目标值
+  * `laser`为RM官方红外激光控制的文件
+  * `RM_Judge`为RM裁判系统数据管理，没写太多
 
 * `Thread`主要放具体功能要运行的线程;
 
-  * `ConfigTask`文件夹主要用来创建和管理线程，最终的.h文件被Hero_control.h包含，最后被robot.c调用，其中`RobotTaskInit()`函数用来创建线程，这个函数最终放在`freertos.c`的`MX_FREERTOS_Init`中。
+  * `ConfigTask`文件夹主要用来创建和管理线程，最终的.h文件被`Hero_control.h`包含，最后被`robot.c`调用，其中`RobotTaskInit()`函数用来创建线程，这个函数最终放在`freertos.c`的`MX_FREERTOS_Init`中。
 
 PS:`Chassis_task`、`Gimbal_task`、`Shoot_task`这三个线程需要`osPriorityHigh`优先级,不然`can2`发送会返回`HAL_ERROR`
 
@@ -138,7 +143,7 @@ PS:`Chassis_task`、`Gimbal_task`、`Shoot_task`这三个线程需要`osPriority
 
 除了线程需要打开CubeMX修改外（因为我是基于英雄重构的代码），步兵需要使能需要的pwm引脚、平衡步兵需要dwt库等，我这里并没有按所有兵种需求去增加东西，主打个人DIY的灵活度（狗头）。
 
-### 2. 基础的bsp板级支持包文件放在./bsp 里
+### 2. ./bsp 里有基础的bsp板级支持包文件
 
 * `bsp_can.c`文件是最重要的文件，里面写了打开CAN外设的接口和一些CAN发送数据的API;
 
@@ -146,13 +151,13 @@ PS:`Chassis_task`、`Gimbal_task`、`Shoot_task`这三个线程需要`osPriority
 
 * `bsp_usart.c`文件中主要使用C板4pin口的那个`USART1`和`USART6`，用来无线调参和数据打印;
 
-* `bsp_timer.c`文件暂时没写东西，因为pwm有关的都可以写到`devices`文件夹里去直接控制;
+* `bsp_timer.c`文件暂时没写东西，因为pwm有关的都可以写到`devices`文件里去直接控制;
 
 * `bsp_adc.c`文件中有计算电池电压和芯片温度的接口；
 
 * 其余的bsp文件都是官方自己的。
 
-### 3. 部分线程文件(led、adc等)放在 ./Thread 里
+### 3. ./Thread 里有C板官方的线程文件(led、adc等)
 
 * adc计算电压线程放在`adc_task`中;
 
@@ -164,49 +169,49 @@ PS:`Chassis_task`、`Gimbal_task`、`Shoot_task`这三个线程需要`osPriority
 
 * 空闲线程是`idle_task`,这个没有放在文件夹里。
 
-### 4. 有关stm32外接设备相关的都在./components/devices
+### 4. ./components/devices 是 stm32 外接设备相关的
 
-其中的设备有：BMI088、IST8310、NUC、串口发送（printf）、电机。
+其中的设备有：BMI088、IST8310、串口发送（printf）、电机、STMGood上位机数据处理。
 
-* `printf.c`为串口重定向格式化文件，这个是arm-gcc工程专有的，如果你用Keil;简单重定向就好了，参考实验室祖传代码或者正点原子的教程。
-* `dji_motor.c`中为电机编码器解算，头文件中有不同减速箱3508的精确减速比；
-* `STMGood`上位机在STMGood.c里，已经开启了所有通道的参数输入；
-* `RM_Judge`是裁判系统有关的一些变量，暂时没写太多，可以按自己需要加东西。
-* `laser.c`是RM官方激光控制文件，实际上就是定时器配置。
+* `printf.c`为串口重定向格式化文件，这个是arm-gcc工程专有的; 如果你用Keil，简单重定向就好了，参考实验室祖传代码或者正点原子的教程
+* `dji_motor.c`中为电机编码器解算，头文件中有不同减速箱3508的精确减速比
+* `STMGood`上位机在`STMGood.c`里，已经开启了所有通道的参数输入
 
 ### 5. ./components/controller 文件为空，没想好要放什么文件
 
-### 6. 有关控制算法的都在./components/algorithm里
+### 6. ./components/algorithm 里是有关控制算法的文件
 
 * `pid.c`文件是一些pid解算的接口；
 
-* `CRC_Check.c`是给PC发送数据时用到的，用来校验串口数据；
+* `CRC_Check.c`是官方给的CRC校验，用来校验串口数据；
 
 * `ramp.c`是计算斜坡函数的，是有关斜坡函数的一些接口；
 
 * `filter.c`文件是陈澍学长写的低通滤波接口，跟`INS_task.c`文件中写的滤波一摸一样，是为了调用方便，后来也没再用了；
 
-* user_lib.c是一些常用快速算法，比如快速开方之类的；
+* `kalman_filter.c`是卡尔曼滤波，只有一阶和二阶；
 
-* 剩余的比如 `MahonyAHRS.c`、`AHRS_middleware.c` 都是有关陀螺仪解算的接口。
+* `user_lib.c`是一些常用快速算法，比如快速开方之类的；
 
-### 7. 一些官方的静态库文件和arm的数学静态库文件放在了./lib路径下
+* `MahonyAHRS.c`、`AHRS_middleware.c` 、`AHRS.h`都是有关陀螺仪解算的接口。
+
+### 7. ./lib 里有一些官方的静态库文件和arm的数学静态库文件
 
 * `libAHRS.a` 和 `libarm_cortexM4lf_math.a`:
 
    一个是官方陀螺仪解算，一个是STM32官方的库文件，这个文件我是在cubemx下载的stm32f407ig包里找到的。
 
-### 8. 二进制文件保存在./build
+### 8. ./build 中为二进制文件
 
 * `*.o 、 *.d 、 *.lst` 这些编译的中间文件放在 `./build/temp` 里了，这个是在makefile中修改的生成路径;
 
 * `工程名.bin、工程名.elf、工程名.hex、工程名.map` 这些文件放在`./build` 中。
 
-PS: 上传git时不需要上传build文件夹，在初始化仓库时就需要在工程路径下创建.gitignore文件去忽略该路径。
+PS: 上传git时不需要上传`build`文件夹，在初始化仓库时就需要在工程路径下创建`.gitignore`文件去忽略该路径。
 
 .gitignore:
 
-```yaml
+```gitignore
 # 忽略build目录
 /build
 # 忽略一切.log后缀的文件

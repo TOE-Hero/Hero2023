@@ -1,27 +1,28 @@
 #include "Gimbal_task.h"
-
+#include "struct_typedef.h"
 #include "Gimbal.h"
 #include <cmsis_os.h>
 #include <main.h>
-#include "Chassis.h"
 #include "bsp_can.h"
-#include "pid.h"
-#include "STMGood.h"
-#include "bsp_usart.h"
-#include "dji_motor.h"
-#include "bsp_remote.h"
 #include "INS_task.h"
 #include "Mode_Switch.h"
 #include "nuc_interface.h"
+/*------------------------ define ----------------------------*/
 
 #define SendPcData_FREQUENCE	10//发送PC信息频率(单位：Hz)
+/*------------------ static declaration  ---------------------*/
 
-static uint8_t pcTick = 0;
+static uint8_t 					pcTick = 0;//PC计数值
+/*------------------ extern declaration  ---------------------*/
 
-extern volatile uint8_t gyro_flag;//陀螺仪标志位
-extern uint8_t RobotId;
+extern volatile uint8_t 		gyro_flag;//陀螺仪标志位
+extern uint8_t 					RobotId;
+/*-------------------- global variable  ----------------------*/
 
-uint16_t fps_gimbal_task = 0;
+uint16_t 						fps_gimbal_task = 0;//云台线程帧率计数值
+/*------------------------------------------------------------*/
+
+
 /**
   * @brief          云台任务,Yaw轴电机&Pitch轴电机
   * @param[in]      
@@ -66,7 +67,7 @@ void Gimbal_task(void const * argument)
 				break;
 			}
 		}
-		taskENTER_CRITICAL();
+		taskENTER_CRITICAL();//中断保护开启(屏蔽中断)
 		ModeSwitch();//模式选择
 		if(gyro_flag)
 		{
@@ -78,8 +79,8 @@ void Gimbal_task(void const * argument)
 			CANTx_SendCurrent(&hcan2,0x1FF, 0 , 0 , 0 , 0 );
 		}
 		
-		taskEXIT_CRITICAL();
-		vTaskDelayUntil(&gimLastWakeTime, 2);
+		taskEXIT_CRITICAL();//中断保护关闭(开启中断)
+		vTaskDelayUntil(&gimLastWakeTime, 2);//500Hz
     }
 	
 

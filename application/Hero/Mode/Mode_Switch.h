@@ -16,8 +16,8 @@
 #define	MOON	0x00
 #define SUN		0x01
 //设定机器人ID，用来选择哪辆车
-#define	ROBOT_ID	SUN
-// #define	ROBOT_ID	MOON
+// #define	ROBOT_ID	SUN
+#define	ROBOT_ID	MOON
 /*------------ PIT轴是哪个电机 --------------*/
 #define GM6020	1
 //设定PIT轴电机

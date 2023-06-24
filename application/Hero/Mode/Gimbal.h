@@ -19,9 +19,11 @@ typedef struct
 	float yawRelV;
 	
 }visInf_t;
-/*********************** extern ***********************/
+/*---------------------- extern ----------------------*/
+
 extern visInf_t s_visionInform;//自瞄结构体
-/******************** function declaration ********************/
+/*---------------- function declaration --------------*/
+
 void Gimbal_Init(void);
 void Gimbal_Move(void);
 

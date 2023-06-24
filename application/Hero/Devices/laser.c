@@ -1,4 +1,5 @@
 #include "bsp_timer.h"
+#include "laser.h"
 #include "tim.h"
 
 extern TIM_HandleTypeDef htim3;

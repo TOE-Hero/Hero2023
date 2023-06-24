@@ -14,6 +14,7 @@
 
 
 /*------------------- function declaration ---------------------*/
+
 void RobotInit(void);
 void RobotDealUSBData(uint8_t *Buf);
 void RobotTaskInit(void);
