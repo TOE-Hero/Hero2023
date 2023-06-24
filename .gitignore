@@ -2,5 +2,7 @@
 /build
 # 忽略一切.log后缀的文件
 *.log
-
+# 忽略cortex-debug.registers.state.json文件,一个中间文件，没必要上传
 .vscode/.cortex-debug.registers.state.json
+# 忽略drawio后缀文件
+*.drawio

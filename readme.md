@@ -69,6 +69,10 @@ VsCode工程缺点：
 
 咱的.c和.h文件放在同一个路径下了，单纯为了方便，因为.h文件也有好多有关配置的，方便好找就放在一起了，你可以.c一个文件夹.h一个文件夹，看个人喜好.
 
+![image](.instruction/总工程.png)
+
+![image](.instruction/官方C板工程.png)
+
 ### 0. 前缀./文件夹
 
 * `.instruction`文件夹里面有一些说明文档和教程，有一些程序框图；
@@ -88,6 +92,8 @@ VsCode工程缺点：
   * `tasks.json`是比较重要的文件，这个文件放在这个文件夹是对当前工作空间生效的，用来烧录程序，编译程序等
 
 ### 1. ./application 里为应用层代码
+
+![image](.instruction/应用层.png)
 
 有一个`robot`文件用来管理不同的机器人；
 
@@ -123,7 +129,9 @@ VsCode工程缺点：
   * `Monitor`用来计算帧率和获取机器人状态，其中有蜂鸣器报警部分；
   * `Chassis.c`文件用来解算底盘运动，然后计算pid，最后给电机发送电流；
   * `Gimbal.c`文件用来解算云台，并发送电流；
-  * `Shoot.c`文件用来解算发射机构电机电流。
+  * `Shoot.c`文件用来解算发射机构电机电流,令拨弹盘电机转一步的控制框图如下：
+
+    ![image](.instruction/shoot.png)
 
 * `Variables`主要是用来管理一些重要的全局变量，比如电机结构体变量、pid、ramp(斜坡函数)等
 
@@ -169,7 +177,11 @@ PS:`Chassis_task`、`Gimbal_task`、`Shoot_task`这三个线程需要`osPriority
 
 * 空闲线程是`idle_task`,这个没有放在文件夹里。
 
-### 4. ./components/devices 是 stm32 外接设备相关的
+### 4 ./components文件说明
+
+![image](.instruction/组件.png)
+
+#### 1. ./components/devices 是 stm32 外接设备相关的
 
 其中的设备有：BMI088、IST8310、串口发送（printf）、电机、STMGood上位机数据处理。
 
@@ -177,9 +189,9 @@ PS:`Chassis_task`、`Gimbal_task`、`Shoot_task`这三个线程需要`osPriority
 * `dji_motor.c`中为电机编码器解算，头文件中有不同减速箱3508的精确减速比
 * `STMGood`上位机在`STMGood.c`里，已经开启了所有通道的参数输入
 
-### 5. ./components/controller 文件为空，没想好要放什么文件
+#### 2. ./components/controller 文件为空，没想好要放什么文件
 
-### 6. ./components/algorithm 里是有关控制算法的文件
+#### 3. ./components/algorithm 里是有关控制算法的文件
 
 * `pid.c`文件是一些pid解算的接口；
 
@@ -195,13 +207,13 @@ PS:`Chassis_task`、`Gimbal_task`、`Shoot_task`这三个线程需要`osPriority
 
 * `MahonyAHRS.c`、`AHRS_middleware.c` 、`AHRS.h`都是有关陀螺仪解算的接口。
 
-### 7. ./lib 里有一些官方的静态库文件和arm的数学静态库文件
+### 5. ./lib 里有一些官方的静态库文件和arm的数学静态库文件
 
 * `libAHRS.a` 和 `libarm_cortexM4lf_math.a`:
 
    一个是官方陀螺仪解算，一个是STM32官方的库文件，这个文件我是在cubemx下载的stm32f407ig包里找到的。
 
-### 8. ./build 中为二进制文件
+### 6. ./build 中为二进制文件
 
 * `*.o 、 *.d 、 *.lst` 这些编译的中间文件放在 `./build/temp` 里了，这个是在makefile中修改的生成路径;
 
@@ -220,7 +232,7 @@ PS: 上传git时不需要上传`build`文件夹，在初始化仓库时就需要
 .vscode/.cortex-debug.registers.state.json
 ```
 
-### 9. UI的程序是用keil构建的，这个懒得重构了，写了一堆屎山代码，造了点轮子，凑合用吧
+### 7. UI的程序是用keil构建的，这个懒得重构了，写了一堆屎山代码，造了点轮子，凑合用吧
 
 ## 三、程序设计思路
 

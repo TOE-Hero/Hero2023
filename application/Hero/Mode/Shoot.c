@@ -9,6 +9,7 @@
 #include "bsp_remote.h"
 #include "math.h"
 #include "printf.h"
+#include "Mode_Switch.h"
 
 #include "Hero_control.h"
 /**************************** Debug *****************************/
@@ -29,7 +30,7 @@
 	#define TRANS_REDUCTION_RATIO   REDUCTION_RATIO_3508_1_19//宏定义拨弹盘电机减速比
 	#define TRANS_STEP			    MOTOR_ONE_TURN_SCALE_3508/6*TRANS_REDUCTION_RATIO
 	#define FRI_SPD_H       	5000//4050// 16m/s弹速,一般白弹丸要比透明弹丸少70左右
-	#define FRI_SPD_H_LOB		4350 //4180// 16m/s弹速，吊射弹速，同上
+	#define FRI_SPD_H_LOB		4500//4350 //4180// 16m/s弹速，吊射弹速，同上
 	#define FRI_SPD_L       	2700// 10m/s弹速
 #endif
 
@@ -257,7 +258,7 @@ void Shoot_Move(void)
             #if T_SWING_DEBUG == 1
 			//0.25f,0,0,0,1500
 			//15.3f,0.3f,0,2000,16000.0f
-				TRANS_motor.target_pos+=(rc_ctrl.rc.ch[4]*100)/66;//调试用
+				TRANS_motor.target_pos+=(rc_ctrl.rc.ch[4]*100)/66;//遥控器左上角拨轮值作为目标位置，调试用
 				pid_abs_evaluation(&TRANS_motor_pid_pos,P7,0,0,0,S7);
 				pid_abs_evaluation(&TRANS_motor_pid_speed,P8,I8,D8,0,16000.0f);
 			#endif
@@ -280,9 +281,6 @@ void Shoot_Move(void)
   */
 static void ShootBall(void)
 {
-
-	static uint16_t Last_fric_l;
-	//static uint16_t  Last_Last_fric_l;
 
 	#if T_SWING_DEBUG == 0 //如果调试拨弹盘的话，遥控器侧边拨轮不作为固定射频使用
 	if( (rc_ctrl.rc.ch[4]>=600) && (LS_UP) )//按固定射频发射，射频在下面设定，左拨杆UP且左上角拨轮拨到最上方时生效

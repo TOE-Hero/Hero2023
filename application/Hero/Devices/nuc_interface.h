@@ -41,7 +41,7 @@ typedef struct
         uint8_t          bit[2];
         unsigned char    data;
     }checkCode;
-    unsigned char        checkCodeCal;
+
 }su_PC_DATA;
 
 typedef struct
@@ -51,6 +51,7 @@ typedef struct
 	float 	visPitTarget;//PIT轴视觉目标值（视觉）
 }s_vision_t;
 /*************************************** extern *******************************************/
+
 extern su_PC_DATA pcData;
 extern s_vision_t visTarget_t;//视觉目标值，传给PID目标位置
 /*********************************** function declaration *********************************/

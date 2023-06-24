@@ -10,11 +10,11 @@ OpenDocument="stm32f4xx_hal.c", FilePath="D:/Workspace/Hero2023-vscode/Drivers/S
 OpenDocument="Shoot.c", FilePath="D:/Workspace/Hero2023-vscode/application/Hero/Mode/Shoot.c", Line=254
 OpenToolbar="Debug", Floating=0, x=0, y=0
 OpenWindow="Memory 1", DockArea=BOTTOM, x=1, y=0, w=1175, h=237, FilterBarShown=0, TotalValueBarShown=0, ToolBarShown=0, EditorAddress=0x20008BD4
-OpenWindow="Global Data", DockArea=RIGHT, x=0, y=1, w=599, h=410, FilterBarShown=0, TotalValueBarShown=0, ToolBarShown=0
-OpenWindow="Watched Data 1", DockArea=LEFT, x=0, y=1, w=440, h=769, FilterBarShown=0, TotalValueBarShown=0, ToolBarShown=0
-OpenWindow="Functions", DockArea=LEFT, x=0, y=0, w=440, h=210, FilterBarShown=0, TotalValueBarShown=0, ToolBarShown=0
+OpenWindow="Global Data", DockArea=RIGHT, x=0, y=1, w=599, h=414, FilterBarShown=0, TotalValueBarShown=0, ToolBarShown=0
+OpenWindow="Watched Data 1", DockArea=LEFT, x=0, y=1, w=440, h=759, FilterBarShown=0, TotalValueBarShown=0, ToolBarShown=0
+OpenWindow="Functions", DockArea=LEFT, x=0, y=0, w=440, h=220, FilterBarShown=0, TotalValueBarShown=0, ToolBarShown=0
 OpenWindow="Console", DockArea=BOTTOM, x=0, y=0, w=1224, h=237, FilterBarShown=0, TotalValueBarShown=0, ToolBarShown=0
-OpenWindow="FreeRTOS", DockArea=RIGHT, x=0, y=0, w=599, h=569, FilterBarShown=0, TotalValueBarShown=0, ToolBarShown=0, Showing="Task List"
+OpenWindow="FreeRTOS", DockArea=RIGHT, x=0, y=0, w=599, h=565, FilterBarShown=0, TotalValueBarShown=0, ToolBarShown=0, Showing="Task List"
 SmartViewPlugin="", Page="", Toolbar="Hidden", Window="SmartView 1"
 TableHeader="Global Data", SortCol="Name", SortOrder="ASCENDING", VisibleCols=["Name";"Value";"Location";"Size";"Type";"Scope"], ColWidths=[124;100;100;100;100;100]
 TableHeader="Functions", SortCol="Name", SortOrder="ASCENDING", VisibleCols=["Name";"Address";"Size";"#Insts";"Source"], ColWidths=[1435;100;100;100;252]
@@ -30,3 +30,5 @@ WatchedExpression="TRANS_motor", RefreshRate=5, DisplayFormat=DISPLAY_FORMAT_DEC
 WatchedExpression="chip_temperature", RefreshRate=5, DisplayFormat=DISPLAY_FORMAT_DEC, Window=Watched Data 1
 WatchedExpression="final_fps_gimbal", RefreshRate=5, DisplayFormat=DISPLAY_FORMAT_DEC, Window=Watched Data 1
 WatchedExpression="PIT_motor", RefreshRate=5, DisplayFormat=DISPLAY_FORMAT_DEC, Window=Watched Data 1
+WatchedExpression="FIRE_L_motor", RefreshRate=5, Window=Watched Data 1
+WatchedExpression="Fric_SpeedTarget", Window=Watched Data 1
