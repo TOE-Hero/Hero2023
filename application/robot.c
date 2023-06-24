@@ -1,7 +1,9 @@
 #include "robot.h"
+
 #if _ROBOT_ == _HERO_
 #include "Hero_control.h"
 #endif // _HERO_
+
 /**
  * @brief 机器人总变量和模式初始化
  * 
