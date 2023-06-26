@@ -912,3 +912,28 @@ int fctprintf(void (*out)(char character, void* arg), void* arg, const char* for
   va_end(va);
   return ret;
 }
+
+
+#include <sys/stat.h>
+#include <unistd.h>
+#include <errno.h>
+
+__attribute__((weak)) int _isatty(int fd)
+{
+  return -1;
+}
+__attribute__((weak)) int _write(int fd, char* ptr, int len){
+  return -1;
+}
+__attribute__((weak)) int _close(int fd){
+  return -1;
+}
+__attribute__((weak)) int _lseek(int fd, int ptr, int dir){
+  return -1;
+}
+__attribute__((weak)) int _read(int fd, char* ptr, int len){
+  return -1;
+}
+__attribute__((weak)) int _fstat(int fd, struct stat* st){
+  return -1;
+}
