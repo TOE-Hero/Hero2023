@@ -292,8 +292,10 @@ OBJECTSXX = $(addprefix $(BUILD_DIR)/,$(notdir $(CXX_SOURCES:.cpp=.o)))
 vpath %.cpp $(sort $(dir $(CXX_SOURCES)))
 endif
 
+ifeq ($(USE_CXX), 1)
 $(BUILD_DIR)/%.o: %.cpp Makefile | $(BUILD_DIR)
 	$(CXX) -c $(CXXFLAGS) -Wa,-a,-ad,-alms=$(BUILD_DIR)/$(notdir $(<:.cpp=.lst)) $< -o $@
+endif
 
 $(BUILD_DIR)/$(BUILD_TEMP_DIR)/%.o: %.c  | $(BUILD_DIR) 
 	$(CC) -c $(CFLAGS) -Wa,-a,-ad,-alms=$(BUILD_DIR)/$(BUILD_TEMP_DIR)/$(notdir $(<:.c=.lst)) $< -o $@

@@ -1,4 +1,12 @@
 {
     "C_Cpp.errorSquiggles": "enabled",
-    "C_Cpp.dimInactiveRegions": true
+    "C_Cpp.dimInactiveRegions": true,
+    "files.associations": {
+        "*.h": "cpp",
+        "*.jdebug": "c",
+        "*.ioc": "properties",
+        "*.list": "shellscript",
+        ".gitignore": "ignore",
+        "cstdint": "cpp"
+    }
 }
