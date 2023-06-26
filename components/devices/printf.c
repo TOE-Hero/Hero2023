@@ -913,7 +913,7 @@ int fctprintf(void (*out)(char character, void* arg), void* arg, const char* for
   return ret;
 }
 
-
+// 通过以下代码修复编译后报无以下函数的警告
 #include <sys/stat.h>
 #include <unistd.h>
 #include <errno.h>
