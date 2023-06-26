@@ -346,13 +346,13 @@ void AHRSgetAngle(s_AHRS_DATA_t* finalData ,fp32 qq[3] )
 		rollLast= finalData->roll;
   }
 
-    /* Transform into continuous values */
+  /* Transform into continuous values */
 
-    if (finalData->yaw - yawLast > 115.0f)   finalData->circle_yaw--;
-    if (finalData->yaw - yawLast < -115.0f)  finalData->circle_yaw++;
-		
-	  if (finalData->roll - rollLast > 115.0f)   finalData->circle_roll--;
-    if (finalData->roll - rollLast < -115.0f)  finalData->circle_roll++;
+  if (finalData->yaw - yawLast > 115.0f)   finalData->circle_yaw--;
+  if (finalData->yaw - yawLast < -115.0f)  finalData->circle_yaw++;
+  
+  if (finalData->roll - rollLast > 115.0f)   finalData->circle_roll--;
+  if (finalData->roll - rollLast < -115.0f)  finalData->circle_roll++;
 
   finalData->serial_Yaw   = finalData->circle_yaw * 360.0f + finalData->yaw;
 	finalData->serial_Roll  = finalData->circle_roll * 360.0f + finalData->roll;

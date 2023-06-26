@@ -239,6 +239,40 @@ LIBDIR = \
 LDFLAGS = $(MCU) -specs=nano.specs -T$(LDSCRIPT) $(LIBDIR) $(LIBS) -Wl,-Map=$(BUILD_DIR)/$(TARGET).map,--cref -Wl,--gc-sections
 # printf float
 #LDFLAGS += -lc -lrdimon -u _printf_float
+
+############################################################################################################################################################
+# C++
+############################################################################################################################################################
+USE_CXX = 0
+# C++ sources
+CXX_SOURCES = \
+$(wildcard ./Thread/*.cpp)
+
+# C++ includes
+CXX_INCLUDES = 
+
+ifdef GCC_PATH
+CXX = $(GCC_PATH)/$(PREFIX)g++
+ASXX = $(GCC_PATH)/$(PREFIX)g++ -x assembler-with-cpp
+else
+CXX = $(PREFIX)g++
+ASXX = $(PREFIX)g++ -x assembler-with-cpp
+endif
+#######################################
+# C++FLAGS
+#######################################
+CXXFLAGS = $(MCU) $(C_DEFS) $(C_INCLUDES) $(CXX_INCLUDES) $(OPT) -Wall -fdata-sections -ffunction-sections -std=c++11 
+
+ifeq ($(DEBUG), 1)
+CXXFLAGS += -g -gdwarf-2
+endif
+# Generate dependency information
+CXXFLAGS += -MMD -MP -MF"$(@:%.o=%.d)"
+############################################################################################################################################################
+# C++ LDFLAGS
+LDFLAGSXX = $(MCU) -specs=nano.specs -specs=nosys.specs -T$(LDSCRIPT) $(LIBDIR) $(LIBS) -Wl,-Map=$(BUILD_DIR)/$(TARGET).map,--cref -Wl,--gc-sections  -lstdc++
+############################################################################################################################################################
+
 # default action: build all
 all: $(BUILD_DIR)/$(TARGET).elf $(BUILD_DIR)/$(TARGET).hex $(BUILD_DIR)/$(TARGET).bin
 
@@ -246,12 +280,20 @@ all: $(BUILD_DIR)/$(TARGET).elf $(BUILD_DIR)/$(TARGET).hex $(BUILD_DIR)/$(TARGET
 #######################################
 # build the application
 #######################################
-# list of objects
+# list of C objects
 OBJECTS = $(addprefix $(BUILD_DIR)/$(BUILD_TEMP_DIR)/,$(notdir $(C_SOURCES:.c=.o)))
 vpath %.c $(sort $(dir $(C_SOURCES)))
 # list of ASM program objects
 OBJECTS += $(addprefix $(BUILD_DIR)/$(BUILD_TEMP_DIR)/,$(notdir $(ASM_SOURCES:.s=.o)))
 vpath %.s $(sort $(dir $(ASM_SOURCES)))
+# list of C++ objects
+ifeq ($(USE_CXX), 1)
+OBJECTSXX = $(addprefix $(BUILD_DIR)/,$(notdir $(CXX_SOURCES:.cpp=.o)))
+vpath %.cpp $(sort $(dir $(CXX_SOURCES)))
+endif
+
+$(BUILD_DIR)/%.o: %.cpp Makefile | $(BUILD_DIR)
+	$(CXX) -c $(CXXFLAGS) -Wa,-a,-ad,-alms=$(BUILD_DIR)/$(notdir $(<:.cpp=.lst)) $< -o $@
 
 $(BUILD_DIR)/$(BUILD_TEMP_DIR)/%.o: %.c  | $(BUILD_DIR) 
 	$(CC) -c $(CFLAGS) -Wa,-a,-ad,-alms=$(BUILD_DIR)/$(BUILD_TEMP_DIR)/$(notdir $(<:.c=.lst)) $< -o $@
@@ -259,9 +301,16 @@ $(BUILD_DIR)/$(BUILD_TEMP_DIR)/%.o: %.c  | $(BUILD_DIR)
 $(BUILD_DIR)/$(BUILD_TEMP_DIR)/%.o: %.s  | $(BUILD_DIR)
 	$(AS) -c $(CFLAGS) $< -o $@
 
+ifeq ($(USE_CXX), 0)
 $(BUILD_DIR)/$(TARGET).elf: $(OBJECTS) | $(BUILD_DIR)
 	$(CC) $(OBJECTS) $(LDFLAGS) -o $@
 	$(SZ) $@
+endif
+ifeq ($(USE_CXX), 1)
+$(BUILD_DIR)/$(TARGET).elf: $(OBJECTS) $(OBJECTSXX) Makefile | $(BUILD_DIR)
+	$(CC) $(OBJECTS) $(OBJECTSXX) $(LDFLAGSXX) -o $@
+	$(SZ) $@
+endif
 
 $(BUILD_DIR)/%.hex: $(BUILD_DIR)/%.elf | $(BUILD_DIR)
 	$(HEX) $< $@
