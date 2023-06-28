@@ -30,6 +30,8 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 /*printf重定向*/
+#ifdef __GNUC__ //arm-none-gcc-eabi编译器
+
 #include <stdbool.h>
 #include <stdint.h>
 
@@ -937,3 +939,5 @@ __attribute__((weak)) int _read(int fd, char* ptr, int len){
 __attribute__((weak)) int _fstat(int fd, struct stat* st){
   return -1;
 }
+
+#endif // __CC_ARM

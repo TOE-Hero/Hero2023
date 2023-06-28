@@ -32,6 +32,8 @@
 #ifndef _PRINTF_H_
 #define _PRINTF_H_
 
+#ifdef __GNUC__ //arm-none-gcc-eabi编译器
+
 #include <stdarg.h>
 #include <stddef.h>
 
@@ -112,5 +114,6 @@ int fctprintf(void (*out)(char character, void* arg), void* arg, const char* for
 }
 #endif
 
+#endif // __GNUC__
 
 #endif  // _PRINTF_H_
