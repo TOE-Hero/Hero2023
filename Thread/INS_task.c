@@ -96,7 +96,7 @@ static void imu_temp_control(fp32 temp);
 static void imu_cmd_spi_dma(void);
 void AHRSgetAngle(s_AHRS_DATA_t* finalData ,fp32 qq[3] );
 void IMU_receive_all_Value(s_IMU_all_Value*all_value , s_AHRS_DATA_t*IMU_ang , float gyro0[3] , float accel0[3], float *temperate0);
-
+static void IMUDelayAssignment(s_IMU_all_Value*imu_all_value, float *ysw_spd_buf, uint8_t index);
 
 extern SPI_HandleTypeDef hspi1;
 
@@ -315,7 +315,7 @@ void INS_task(void const *pvParameters)
  * @param buf 
  * @param index 
  */
-void IMUDelayAssignment(s_IMU_all_Value*imu_all_value, float *ysw_spd_buf, uint8_t index)
+static void IMUDelayAssignment(s_IMU_all_Value*imu_all_value, float *ysw_spd_buf, uint8_t index)
 {
   for (int8_t i = index; i < 0; i--)
   {

@@ -3,6 +3,16 @@
 
 #include <stdint.h>
 
+/*------ 宏定义__packed，用来结构体字节对齐 -----*/
+#if defined (__ARMCC_VERSION) && (__ARMCC_VERSION < 6010050) /* ARM Compiler V6 behind */
+  #ifndef __weak
+    #define __weak  __attribute__((weak))
+  #endif
+  #ifndef __packed
+    #define __packed  __attribute__((packed))
+  #endif
+#endif
+
 /*------ 以下为stdint库已经定义的类型 -----*/
 typedef signed char int8_t;
 typedef signed short int int16_t;
