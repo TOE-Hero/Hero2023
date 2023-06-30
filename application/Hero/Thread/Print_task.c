@@ -218,7 +218,7 @@ void Print_task(void const * argument)
 /*********************************************************** Firc ***********************************************************/
 		{
 		#if FRIC_BACK_SPEED_DEBUG == 0
-			printf("%d,%f\n",FIRE_L_motor.back_motor_speed,FIRE_L_motor_pid_speed.PIDout);
+			printf("%d,%d\n",FIRE_L_motor.back_motor_speed,FIRE_R_motor.back_motor_speed);
 		#endif
 		#if SPEED_CLOSED_LOOP_DEBUG == 1
 			printf("%d  %d\r\n \
